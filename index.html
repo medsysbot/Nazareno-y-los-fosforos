@@ -25,8 +25,8 @@
       user-select: none;
     }
 
-    button {
-      font: inherit;
+    button,
+    audio {
       -webkit-tap-highlight-color: transparent;
     }
 
@@ -48,11 +48,10 @@
       z-index: 20;
     }
 
-    /* Hotspot invisible sobre JUGAR */
     #playHotspot {
       position: absolute;
-      left: 50%;
-      bottom: 4.6%;
+      left: 56%;
+      bottom: 4.3%;
       transform: translateX(-50%);
       width: 280px;
       height: 102px;
@@ -62,7 +61,7 @@
       border-radius: 999px;
       cursor: pointer;
       z-index: 50;
-      box-shadow: 0 0 26px rgba(255, 70, 0, 0.08);
+      box-shadow: 0 0 24px rgba(255, 70, 0, 0.08);
     }
 
     #playHotspot:focus,
@@ -70,21 +69,20 @@
     #playHotspot:focus-visible {
       outline: none;
       border: none;
-      box-shadow: 0 0 26px rgba(255, 70, 0, 0.08);
+      box-shadow: 0 0 24px rgba(255, 70, 0, 0.08);
     }
 
-    /* Opcional para calibrar la zona exacta */
     .debug-hotspot {
       display: none;
       position: absolute;
-      left: 50%;
-      bottom: 4.6%;
+      left: 56%;
+      bottom: 4.3%;
       transform: translateX(-50%);
       width: 280px;
       height: 102px;
       border-radius: 999px;
-      border: 2px dashed rgba(255,255,255,0.55);
-      background: rgba(255, 40, 0, 0.12);
+      border: 2px dashed rgba(255,255,255,0.75);
+      background: rgba(255, 40, 0, 0.18);
       pointer-events: none;
       z-index: 40;
     }
@@ -166,22 +164,20 @@
       box-shadow: none;
     }
 
-    /* Activar temporalmente para calibrar zonas */
     .zone-debug {
       background: rgba(255, 0, 0, 0.18);
-      border: 2px dashed rgba(255,255,255,0.7);
+      border: 2px dashed rgba(255,255,255,0.8);
       border-radius: 10px;
     }
 
-    /* Fósforo visible en la mano */
     #matchInHand {
       position: absolute;
-      right: 26.4%;
-      top: 54.2%;
-      width: 22px;
-      height: 132px;
-      transform: rotate(26deg);
-      transform-origin: center 90%;
+      right: 20.2%;
+      top: 60.6%;
+      width: 20px;
+      height: 116px;
+      transform: rotate(27deg);
+      transform-origin: center 88%;
       z-index: 12;
       transition: opacity 0.12s ease;
       pointer-events: none;
@@ -190,10 +186,10 @@
     #matchInHand::before {
       content: "";
       position: absolute;
-      left: 7px;
-      top: 20px;
+      left: 6px;
+      top: 18px;
       width: 8px;
-      height: 96px;
+      height: 84px;
       border-radius: 999px;
       background: linear-gradient(180deg, #f3d7ac 0%, #c18756 100%);
       box-shadow: 0 0 3px rgba(0,0,0,0.2);
@@ -202,17 +198,16 @@
     #matchInHand::after {
       content: "";
       position: absolute;
-      left: -2px;
-      top: -12px;
-      width: 28px;
-      height: 46px;
+      left: -1px;
+      top: -10px;
+      width: 24px;
+      height: 38px;
       background: radial-gradient(circle at 50% 75%, #fff8b6 0%, #ffd55b 30%, #ff9a22 62%, rgba(255,109,33,0.95) 100%);
       border-radius: 50% 50% 42% 42% / 62% 62% 38% 38%;
-      box-shadow: 0 0 18px rgba(255,173,51,0.78), 0 0 36px rgba(255,108,24,0.4);
+      box-shadow: 0 0 16px rgba(255,173,51,0.78), 0 0 28px rgba(255,108,24,0.4);
       animation: flameFlicker 0.22s infinite alternate ease-in-out;
     }
 
-    /* Fósforo volando */
     #flyingMatch {
       position: absolute;
       width: 18px;
@@ -246,7 +241,6 @@
       animation: flameFlicker 0.2s infinite alternate ease-in-out;
     }
 
-    /* Fuego al impactar */
     #impactFire {
       position: absolute;
       width: 46px;
@@ -266,7 +260,6 @@
       animation: impactPulse 0.18s infinite alternate ease-in-out;
     }
 
-    /* Mensajes */
     #messageBox {
       position: absolute;
       left: 50%;
@@ -339,13 +332,15 @@
       #playHotspot {
         width: 260px;
         height: 96px;
-        bottom: 4.2%;
+        bottom: 4.1%;
+        left: 56%;
       }
 
       .debug-hotspot {
         width: 260px;
         height: 96px;
-        bottom: 4.2%;
+        bottom: 4.1%;
+        left: 56%;
       }
 
       .hud {
@@ -379,10 +374,19 @@
       #messageText {
         font-size: 13px;
       }
+
+      #matchInHand {
+        right: 18.7%;
+        top: 61.2%;
+        width: 18px;
+        height: 108px;
+      }
     }
   </style>
 </head>
 <body>
+  <audio id="bgMusic" src="music.mp3" loop preload="auto"></audio>
+  <audio id="sirenSound" src="siren.mp3" preload="auto"></audio>
 
   <section id="splash" class="screen">
     <button id="playHotspot" aria-label="Jugar"></button>
@@ -414,7 +418,7 @@
       <div id="flyingMatch"></div>
       <div id="impactFire"></div>
 
-      <!-- Zonas -->
+      <!-- ZONAS: agregá zone-debug a cada una si querés verlas -->
       <button class="zone" id="zoneWater" style="left: 2%; top: 40%; width: 20%; height: 20%;" aria-label="Agua"></button>
       <button class="zone" id="zoneCement" style="left: 24%; top: 44%; width: 52%; height: 46%;" aria-label="Cemento"></button>
       <button class="zone" id="zoneLeaves" style="left: 15%; top: 42%; width: 22%; height: 12%;" aria-label="Hojas secas"></button>
@@ -433,6 +437,9 @@
     const game = document.getElementById('game');
     const playHotspot = document.getElementById('playHotspot');
 
+    const bgMusic = document.getElementById('bgMusic');
+    const sirenSound = document.getElementById('sirenSound');
+
     const scoreValue = document.getElementById('scoreValue');
     const matchInHand = document.getElementById('matchInHand');
     const flyingMatch = document.getElementById('flyingMatch');
@@ -450,9 +457,36 @@
     let activeDangerLevel = 0;
     let messageTimer = null;
 
+    /* =========================
+       AJUSTE FINO
+       Tocá solo estos valores
+    ========================= */
+
+    // Hotspot JUGAR (referencia)
+    // CSS actual:
+    // left: 56%;
+    // bottom: 4.3%;
+    // width: 280px;
+    // height: 102px;
+
+    // Fósforo en mano (CSS actual):
+    // right: 20.2%;
+    // top: 60.6%;
+    // rotate: 27deg;
+
+    // Punto de salida del fósforo animado:
+    const THROW_START_X = 0.80; // más a la derecha = subir valor
+    const THROW_START_Y = 0.72; // más abajo = subir valor
+
+    // Curvatura del vuelo:
+    const THROW_ARC = 55;
+
     playHotspot.addEventListener('click', () => {
       splash.style.display = 'none';
       game.style.display = 'block';
+
+      bgMusic.volume = 0.35;
+      bgMusic.play().catch(() => {});
     });
 
     function zoneCenter(el) {
@@ -480,12 +514,24 @@
       }, duration);
     }
 
+    function stopSiren() {
+      sirenSound.pause();
+      sirenSound.currentTime = 0;
+    }
+
+    function startSiren() {
+      sirenSound.currentTime = 0;
+      sirenSound.volume = 0.55;
+      sirenSound.play().catch(() => {});
+    }
+
     function clearFireState() {
       fireActive = false;
       activeDangerLevel = 0;
       impactFire.style.opacity = '0';
       impactFire.style.pointerEvents = 'none';
       impactFire.onclick = null;
+      stopSiren();
 
       if (fireTimeout) {
         clearTimeout(fireTimeout);
@@ -497,8 +543,8 @@
       clearFireState();
       showMessage(
         'danger',
-        'Perdiste la partida',
-        'El fuego no fue apagado a tiempo. Reiniciá la página para volver a intentarlo.',
+        'Llegaron los bomberos',
+        'No apagaste el fuego a tiempo y perdiste la partida.',
         2600
       );
       scoreValue.textContent = score;
@@ -524,7 +570,7 @@
       showMessage(
         'warning',
         'Reaccionaste a tiempo',
-        'Apagaste el fuego y seguís jugando, pero perdiste algunos puntos.',
+        'Apagaste el fuego antes de que llegaran los bomberos.',
         2000
       );
 
@@ -543,6 +589,8 @@
       activeDangerLevel = dangerLevel;
       impactFire.onclick = extinguishFire;
 
+      startSiren();
+
       const wait = dangerLevel === 3 ? 1200 : dangerLevel === 2 ? 1500 : 1800;
       fireTimeout = setTimeout(failByFire, wait);
     }
@@ -551,8 +599,8 @@
       if (animating || fireActive) return;
       animating = true;
 
-      const startX = gameScene.clientWidth * 0.73;
-      const startY = gameScene.clientHeight * 0.64;
+      const startX = gameScene.clientWidth * THROW_START_X;
+      const startY = gameScene.clientHeight * THROW_START_Y;
       const end = zoneCenter(targetEl);
 
       matchInHand.style.opacity = '0';
@@ -566,7 +614,7 @@
       function frame(now) {
         const t = Math.min(1, (now - startTime) / duration);
         const eased = 1 - Math.pow(1 - t, 3);
-        const arc = Math.sin(t * Math.PI) * 55;
+        const arc = Math.sin(t * Math.PI) * THROW_ARC;
 
         const x = startX + (end.x - startX) * eased;
         const y = startY + (end.y - startY) * eased - arc;
@@ -620,8 +668,8 @@
         showMessage(
           'danger',
           'Muy peligroso',
-          'Las hojas secas prenden rapidísimo. Tocá el fuego para apagarlo.',
-          2000
+          'Las hojas secas prenden rapidísimo. Apagá el fuego antes de que lleguen los bomberos.',
+          2200
         );
       }
 

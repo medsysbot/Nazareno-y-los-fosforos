@@ -137,7 +137,6 @@
       z-index: 50;
     }
 
-    /* Hotspot para tocar la mano/fósforo y lanzar */
     #throwHotspot {
       position: absolute;
       border: none;
@@ -375,25 +374,25 @@
       }
 
       #throwHotspot {
-        right: 16%;
-        top: 53%;
-        width: 120px;
-        height: 180px;
+        right: 7%;
+        top: 57%;
+        width: 110px;
+        height: 170px;
       }
 
       .debug-throw {
-        right: 16%;
-        top: 53%;
-        width: 120px;
-        height: 180px;
+        right: 7%;
+        top: 57%;
+        width: 110px;
+        height: 170px;
       }
 
       #matchInHand {
-        right: 20.2%;
-        top: 60.6%;
-        width: 20px;
-        height: 116px;
-        transform: rotate(27deg);
+        right: 11.5%;
+        top: 64.5%;
+        width: 18px;
+        height: 106px;
+        transform: rotate(24deg);
         transform-origin: center 88%;
       }
 
@@ -408,9 +407,9 @@
     ========================================== */
     @media (max-width: 768px) {
       #playHotspot {
-        left: 65%;
-        bottom: 2.1%;
-        transform: translateX(-40%);
+        left: 56%;
+        bottom: 4.1%;
+        transform: translateX(-50%);
         width: 260px;
         height: 96px;
       }
@@ -442,25 +441,25 @@
       }
 
       #throwHotspot {
-        right: 35%;
-        top: 14%;
-        width: 150px;
-        height: 220px;
+        right: 1.5%;
+        top: 42%;
+        width: 120px;
+        height: 170px;
       }
 
       .debug-throw {
-        right: 6%;
-        top: 20%;
-        width: 150px;
-        height: 220px;
+        right: 1.5%;
+        top: 42%;
+        width: 120px;
+        height: 170px;
       }
 
       #matchInHand {
-        right: 25.7%;
-        top: 50.2%;
-        width: 18px;
-        height: 108px;
-        transform: rotate(27deg);
+        right: 6.5%;
+        top: 58.2%;
+        width: 17px;
+        height: 98px;
+        transform: rotate(24deg);
         transform-origin: center 88%;
       }
 
@@ -519,14 +518,12 @@
       <div id="flyingMatch"></div>
       <div id="impactFire"></div>
 
-      <!-- zonas internas -->
       <button class="zone" id="zoneWater" style="left: 2%; top: 40%; width: 20%; height: 20%;" aria-label="Agua"></button>
       <button class="zone" id="zoneCement" style="left: 24%; top: 44%; width: 52%; height: 46%;" aria-label="Cemento"></button>
       <button class="zone" id="zoneLeaves" style="left: 15%; top: 42%; width: 22%; height: 12%;" aria-label="Hojas secas"></button>
       <button class="zone" id="zoneLogs" style="left: 83%; top: 33%; width: 16%; height: 15%;" aria-label="Leña"></button>
       <button class="zone" id="zoneFence" style="left: 78%; top: 16%; width: 21%; height: 32%;" aria-label="Fence"></button>
 
-      <!-- tocar aquí para lanzar -->
       <button id="throwHotspot" aria-label="Lanzar fósforo"></button>
       <div class="debug-throw"></div>
     </div>
@@ -583,9 +580,9 @@
        AJUSTES JS
        TOCA SOLO ESTOS TRES PARA EL VUELO
     ========================================== */
-    const THROW_START_X = 0.60;
-    const THROW_START_Y = 0.82;
-    const THROW_ARC = 75;
+    const THROW_START_X = 0.89;
+    const THROW_START_Y = 0.73;
+    const THROW_ARC = 62;
 
     /* ==========================================
        PROBABILIDADES

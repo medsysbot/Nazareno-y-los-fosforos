@@ -244,7 +244,7 @@
       z-index: 15;
       transform-origin: center bottom;
       transform: scale(0.72);
-      transition: opacity 0.15s ease, transform 0.32s ease;
+      transition: opacity 0.15s ease, transform 0.45s ease;
     }
 
     #impactFire::before {
@@ -260,74 +260,112 @@
       animation: impactPulse 0.18s infinite alternate ease-in-out;
     }
 
-    #impactFire.grow-1 {
-      transform: scale(0.78);
-    }
+    #impactFire.grow-1 { transform: scale(0.78); }
+    #impactFire.grow-2 { transform: scale(1.18); }
+    #impactFire.grow-3 { transform: scale(1.78); }
 
-    #impactFire.grow-2 {
-      transform: scale(1.15);
-    }
-
-    #impactFire.grow-3 {
-      transform: scale(1.65);
-    }
-
+    /* Mensaje centrado en la zona marcada */
     #messageBox {
       position: absolute;
       left: 50%;
-      bottom: 22px;
-      transform: translateX(-50%) translateY(18px);
-      min-width: min(86vw, 420px);
-      max-width: min(90vw, 560px);
-      padding: 14px 18px;
-      border-radius: 18px;
-      background: rgba(12, 18, 24, 0.86);
-      border: 1px solid rgba(255,255,255,0.12);
-      box-shadow: 0 14px 36px rgba(0,0,0,0.28);
-      color: #fff4de;
+      top: 56%;
+      transform: translate(-50%, -50%) scale(0.96);
+      min-width: min(78vw, 420px);
+      max-width: min(84vw, 520px);
+      padding: 16px 20px;
+      border-radius: 22px;
+      border: 2px solid rgba(255,255,255,0.18);
+      box-shadow: 0 18px 40px rgba(0,0,0,0.28);
+      color: #fff8e8;
       z-index: 40;
       opacity: 0;
       pointer-events: none;
       transition: opacity 0.18s ease, transform 0.18s ease;
-      backdrop-filter: blur(6px);
+      text-align: center;
+      backdrop-filter: blur(5px);
     }
 
     #messageBox.show {
       opacity: 1;
-      transform: translateX(-50%) translateY(0);
+      transform: translate(-50%, -50%) scale(1);
     }
 
     #messageTitle {
       display: block;
-      font-size: 15px;
+      font-size: 18px;
       font-weight: 900;
-      letter-spacing: 0.3px;
-      margin-bottom: 4px;
+      letter-spacing: 0.4px;
+      margin-bottom: 6px;
+      text-transform: uppercase;
     }
 
     #messageText {
       display: block;
-      font-size: 14px;
-      line-height: 1.35;
-      opacity: 0.96;
+      font-size: 15px;
+      line-height: 1.38;
+      opacity: 0.98;
     }
 
     #messageBox.success {
-      background: rgba(17, 34, 22, 0.9);
-      border-color: rgba(120, 208, 139, 0.35);
-      box-shadow: 0 14px 36px rgba(21, 69, 34, 0.28);
+      background: rgba(20, 89, 36, 0.90);
+      border-color: rgba(163, 255, 163, 0.45);
+      box-shadow: 0 18px 40px rgba(17, 76, 34, 0.35);
     }
 
     #messageBox.warning {
-      background: rgba(46, 27, 12, 0.92);
-      border-color: rgba(255, 166, 92, 0.35);
-      box-shadow: 0 14px 36px rgba(97, 52, 13, 0.28);
+      background: rgba(144, 78, 8, 0.92);
+      border-color: rgba(255, 221, 128, 0.48);
+      box-shadow: 0 18px 40px rgba(120, 69, 18, 0.34);
     }
 
     #messageBox.danger {
-      background: rgba(52, 15, 15, 0.92);
-      border-color: rgba(255, 108, 108, 0.35);
-      box-shadow: 0 14px 36px rgba(95, 22, 22, 0.28);
+      background: rgba(150, 28, 28, 0.92);
+      border-color: rgba(255, 166, 166, 0.45);
+      box-shadow: 0 18px 40px rgba(117, 28, 28, 0.34);
+    }
+
+    /* Game over centrado */
+    #gameOverOverlay {
+      position: absolute;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 60;
+      background: rgba(0, 0, 0, 0.28);
+      backdrop-filter: blur(2px);
+      pointer-events: none;
+    }
+
+    #gameOverOverlay.show {
+      display: flex;
+    }
+
+    .game-over-box {
+      text-align: center;
+      padding: 26px 30px;
+      border-radius: 26px;
+      background: rgba(110, 18, 18, 0.90);
+      border: 2px solid rgba(255, 190, 190, 0.35);
+      box-shadow: 0 20px 48px rgba(0,0,0,0.36);
+      color: #fff5ee;
+      min-width: min(82vw, 420px);
+      max-width: min(88vw, 520px);
+    }
+
+    .game-over-title {
+      font-size: clamp(2rem, 7vw, 3.2rem);
+      font-weight: 900;
+      line-height: 1;
+      letter-spacing: 1.5px;
+      margin-bottom: 10px;
+      text-transform: uppercase;
+    }
+
+    .game-over-subtitle {
+      font-size: clamp(1rem, 3.2vw, 1.25rem);
+      font-weight: 700;
+      opacity: 0.98;
     }
 
     @keyframes flameFlicker {
@@ -373,25 +411,25 @@
         font-size: 18px;
       }
 
-      #messageBox {
-        bottom: 16px;
-        min-width: min(90vw, 360px);
-        padding: 12px 14px;
-      }
-
-      #messageTitle {
-        font-size: 14px;
-      }
-
-      #messageText {
-        font-size: 13px;
-      }
-
       #matchInHand {
         right: 18.7%;
         top: 61.2%;
         width: 18px;
         height: 108px;
+      }
+
+      #messageBox {
+        top: 54%;
+        min-width: min(82vw, 340px);
+        padding: 14px 16px;
+      }
+
+      #messageTitle {
+        font-size: 17px;
+      }
+
+      #messageText {
+        font-size: 14px;
       }
     }
   </style>
@@ -441,6 +479,13 @@
       <span id="messageTitle"></span>
       <span id="messageText"></span>
     </div>
+
+    <div id="gameOverOverlay">
+      <div class="game-over-box">
+        <div class="game-over-title">Game Over</div>
+        <div class="game-over-subtitle">Llegaron los bomberos</div>
+      </div>
+    </div>
   </section>
 
   <script>
@@ -460,17 +505,18 @@
     const messageBox = document.getElementById('messageBox');
     const messageTitle = document.getElementById('messageTitle');
     const messageText = document.getElementById('messageText');
+    const gameOverOverlay = document.getElementById('gameOverOverlay');
 
     let score = 0;
     let animating = false;
     let fireTimeout = null;
+    let sirenStopTimeout = null;
     let lossVisualTimeout = null;
     let fireGrowthTimers = [];
     let fireActive = false;
     let activeDangerLevel = 0;
     let messageTimer = null;
 
-    /* AJUSTE FINO */
     const THROW_START_X = 0.80;
     const THROW_START_Y = 0.72;
     const THROW_ARC = 55;
@@ -494,9 +540,7 @@
     function showMessage(kind, title, text, duration = 1800) {
       if (messageTimer) {
         clearTimeout(messageTimer);
-        messageTimer = null;
       }
-
       messageBox.className = '';
       messageBox.classList.add(kind, 'show');
       messageTitle.textContent = title;
@@ -507,15 +551,15 @@
       }, duration);
     }
 
-    function stopSiren() {
-      sirenSound.pause();
-      sirenSound.currentTime = 0;
-    }
-
     function startSiren() {
       sirenSound.currentTime = 0;
       sirenSound.volume = 0.60;
       sirenSound.play().catch(() => {});
+    }
+
+    function stopSiren() {
+      sirenSound.pause();
+      sirenSound.currentTime = 0;
     }
 
     function clearGrowthTimers() {
@@ -524,6 +568,10 @@
       if (lossVisualTimeout) {
         clearTimeout(lossVisualTimeout);
         lossVisualTimeout = null;
+      }
+      if (sirenStopTimeout) {
+        clearTimeout(sirenStopTimeout);
+        sirenStopTimeout = null;
       }
     }
 
@@ -534,12 +582,16 @@
       impactFire.onclick = null;
     }
 
+    function resetGameOver() {
+      gameOverOverlay.classList.remove('show');
+    }
+
     function clearFireState() {
       fireActive = false;
       activeDangerLevel = 0;
       clearGrowthTimers();
       resetFireVisual();
-      stopSiren();
+      resetGameOver();
 
       if (fireTimeout) {
         clearTimeout(fireTimeout);
@@ -560,17 +612,17 @@
       impactFire.style.opacity = '1';
       impactFire.style.pointerEvents = 'none';
 
-      showMessage(
-        'danger',
-        'Llegaron los bomberos',
-        'No apagaste el fuego a tiempo. El incendio creció y perdiste la partida.',
-        3200
-      );
+      messageBox.classList.remove('show');
+      gameOverOverlay.classList.add('show');
+
+      // 8 segundos totales visibles/sonoros aprox
+      sirenStopTimeout = setTimeout(() => {
+        stopSiren();
+      }, 8000);
 
       lossVisualTimeout = setTimeout(() => {
-        stopSiren();
         resetFireVisual();
-      }, 1800);
+      }, 8000);
     }
 
     function extinguishFire() {
@@ -582,6 +634,7 @@
       }
 
       clearGrowthTimers();
+      stopSiren();
 
       if (activeDangerLevel === 3) score -= 8;
       if (activeDangerLevel === 2) score -= 6;
@@ -593,10 +646,12 @@
         'warning',
         'Reaccionaste a tiempo',
         'Apagaste el fuego antes de que creciera más y antes de que llegaran los bomberos.',
-        2200
+        2400
       );
 
-      clearFireState();
+      fireActive = false;
+      activeDangerLevel = 0;
+      resetFireVisual();
     }
 
     function showExtinguishChance(targetEl, dangerLevel) {
@@ -615,21 +670,20 @@
 
       startSiren();
 
-      const reactTime = dangerLevel === 3 ? 1800 : dangerLevel === 2 ? 2200 : 2600;
-      const grow1 = Math.floor(reactTime * 0.35);
-      const grow2 = Math.floor(reactTime * 0.72);
+      // crece antes, pero la pérdida visual/sonora total dura 8s
+      const reactTime = 7600;
 
       fireGrowthTimers.push(setTimeout(() => {
         if (!fireActive) return;
         impactFire.classList.remove('grow-1');
         impactFire.classList.add('grow-2');
-      }, grow1));
+      }, 2200));
 
       fireGrowthTimers.push(setTimeout(() => {
         if (!fireActive) return;
         impactFire.classList.remove('grow-2');
         impactFire.classList.add('grow-3');
-      }, grow2));
+      }, 5000));
 
       fireTimeout = setTimeout(failByFire, reactTime);
     }
@@ -690,6 +744,7 @@
     function applyResult(type, dangerLevel, targetEl) {
       if (animating || fireActive) return;
 
+      resetGameOver();
       animateMatchTo(targetEl, dangerLevel);
 
       if (type === 'safe') {
@@ -698,7 +753,7 @@
           'success',
           'Buena decisión',
           'Elegiste una zona segura para tirar el fósforo.',
-          1600
+          1800
         );
       }
 
@@ -707,8 +762,8 @@
         showMessage(
           'danger',
           'Muy peligroso',
-          'Las hojas secas prenden rapidísimo. El fuego va a crecer si no actuás ya.',
-          2400
+          'Las hojas secas prenden rapidísimo. Reaccioná antes de que el fuego crezca.',
+          2500
         );
       }
 
@@ -717,8 +772,8 @@
         showMessage(
           'danger',
           'Cuidado',
-          'La leña puede prender y crecer en pocos segundos. Tocá el fuego para apagarlo.',
-          2200
+          'La leña puede prender y crecer. Tocá el fuego para apagarlo.',
+          2400
         );
       }
 
@@ -728,7 +783,7 @@
           'danger',
           'Atención',
           'El fence también puede prender. Si te demorás, el fuego crece.',
-          2200
+          2400
         );
       }
 

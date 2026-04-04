@@ -1,0 +1,595 @@
+<!DOCTYPE html><html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nazareno y los fósforos</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  font-family: Arial, Helvetica, sans-serif;
+  background: #000;
+}
+
+.screen {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.hidden {
+  display: none;
+}
+
+/* SPLASH */
+#splash {
+  background-image: url('splash.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+/* Hotspot invisible sobre la palabra JUGAR */
+#playHotspot {
+  position: absolute;
+  left: 50%;
+  bottom: 7.2%;
+  transform: translateX(-50%);
+  width: 250px;
+  height: 92px;
+  background: transparent;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  z-index: 20;
+}
+
+/* GAME */
+#game {
+  background-image: url('game.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  display: none;
+}
+
+.hud {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 10px;
+  background: rgba(0, 0, 0, 0.38);
+  backdrop-filter: blur(4px);
+  z-index: 30;
+}
+
+.hud-item {
+  min-width: 90px;
+  text-align: center;
+  color: #fff5df;
+  background: rgba(0, 0, 0, 0.28);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 14px;
+  padding: 10px 12px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.18);
+}
+
+.hud-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  opacity: 0.85;
+  margin-bottom: 4px;
+  letter-spacing: 0.4px;
+}
+
+.hud-value {
+  display: block;
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+/* Solo para prueba visual opcional. Dejalo en none para producción */
+.debug-hotspot {
+  display: none;
+  position: absolute;
+  left: 50%;
+  bottom: 7.2%;
+  transform: translateX(-50%);
+  width: 250px;
+  height: 92px;
+  border-radius: 999px;
+  border: 2px dashed rgba(255,255,255,0.55);
+  background: rgba(255,0,0,0.14);
+  z-index: 10;
+  pointer-events: none;
+}
+
+@media (max-width: 768px) {
+  #playHotspot {
+    width: 230px;
+    height: 86px;
+    bottom: 6.8%;
+  }
+
+  .debug-hotspot {
+    width: 230px;
+    height: 86px;
+    bottom: 6.8%;
+  }
+
+  .hud {
+    gap: 6px;
+    padding: 10px 6px;
+  }
+
+  .hud-item {
+    min-width: 72px;
+    padding: 8px 8px;
+  }
+
+  .hud-label {
+    font-size: 10px;
+  }
+
+  .hud-value {
+    font-size: 18px;
+  }
+}
+
+  </style>
+</head>
+<body>  <section id="splash" class="screen">
+    <button id="playHotspot" aria-label="Jugar"></button>
+    <div class="debug-hotspot"></div>
+  </section>  <section id="game" class="screen">
+    <div class="hud">
+      <div class="hud-item">
+        <span class="hud-label">PUNTAJE</span>
+        <span class="hud-value" id="scoreValue">0</span>
+      </div>
+      <div class="hud-item">
+        <span class="hud-label">NIVEL</span>
+        <span class="hud-value">1</span>
+      </div>
+      <div class="hud-item">
+        <span class="hud-label">TIEMPO</span>
+        <span class="hud-value">3s</span>
+      </div>
+      <div class="hud-item">
+        <span class="hud-label">RACHA</span>
+        <span class="hud-value">0</span>
+      </div>
+    </div><div id="gameScene">
+  <div id="matchInHand"></div>
+  <div id="flyingMatch"></div>
+  <div id="impactFire"></div>
+
+  <button class="zone zone-safe" id="zoneWater" style="left: 2%; top: 40%; width: 20%; height: 20%;" aria-label="Agua"></button>
+  <button class="zone zone-safe" id="zoneCement" style="left: 24%; top: 44%; width: 52%; height: 46%;" aria-label="Cemento"></button>
+  <button class="zone zone-danger-high" id="zoneLeaves" style="left: 15%; top: 42%; width: 22%; height: 12%;" aria-label="Hojas secas"></button>
+  <button class="zone zone-danger-mid" id="zoneLogs" style="left: 83%; top: 33%; width: 16%; height: 15%;" aria-label="Leña"></button>
+  <button class="zone zone-danger-low" id="zoneFence" style="left: 78%; top: 16%; width: 21%; height: 32%;" aria-label="Fence"></button>
+</div>
+
+<div id="messageBox">
+  <span id="messageTitle"></span>
+  <span id="messageText"></span>
+</div>
+
+  </section>  <style>
+    #gameScene {
+      position: absolute;
+      inset: 0;
+      z-index: 5;
+    }
+
+    .zone {
+      position: absolute;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      z-index: 8;
+    }
+
+    .zone:focus {
+      outline: none;
+    }
+
+    /* Activar temporalmente para calibrar zonas */
+    .zone-debug {
+      background: rgba(255, 0, 0, 0.18);
+      border: 2px dashed rgba(255,255,255,0.7);
+      border-radius: 10px;
+    }
+
+    #matchInHand {
+      position: absolute;
+      right: 26.4%;
+      top: 54.2%;
+      width: 22px;
+      height: 132px;
+      transform: rotate(26deg);
+      transform-origin: center 90%;
+      z-index: 12;
+      transition: opacity 0.12s ease;
+    }
+
+    #matchInHand::before {
+      content: "";
+      position: absolute;
+      left: 7px;
+      top: 20px;
+      width: 8px;
+      height: 96px;
+      border-radius: 999px;
+      background: linear-gradient(180deg, #f3d7ac 0%, #c18756 100%);
+      box-shadow: 0 0 3px rgba(0,0,0,0.2);
+    }
+
+    #matchInHand::after {
+      content: "";
+      position: absolute;
+      left: -2px;
+      top: -12px;
+      width: 28px;
+      height: 46px;
+      background: radial-gradient(circle at 50% 75%, #fff8b6 0%, #ffd55b 30%, #ff9a22 62%, rgba(255,109,33,0.95) 100%);
+      border-radius: 50% 50% 42% 42% / 62% 62% 38% 38%;
+      box-shadow: 0 0 18px rgba(255,173,51,0.78), 0 0 36px rgba(255,108,24,0.4);
+      animation: flameFlicker 0.22s infinite alternate ease-in-out;
+    }
+
+    #flyingMatch {
+      position: absolute;
+      width: 18px;
+      height: 88px;
+      opacity: 0;
+      pointer-events: none;
+      z-index: 14;
+    }
+
+    #flyingMatch::before {
+      content: "";
+      position: absolute;
+      left: 5px;
+      top: 14px;
+      width: 8px;
+      height: 66px;
+      border-radius: 999px;
+      background: linear-gradient(180deg, #f3d7ac 0%, #c18756 100%);
+    }
+
+    #flyingMatch::after {
+      content: "";
+      position: absolute;
+      left: -1px;
+      top: -7px;
+      width: 20px;
+      height: 30px;
+      background: radial-gradient(circle at 50% 75%, #fff8b6 0%, #ffd55b 30%, #ff9a22 62%, rgba(255,109,33,0.95) 100%);
+      border-radius: 50% 50% 42% 42% / 62% 62% 38% 38%;
+      box-shadow: 0 0 12px rgba(255,173,51,0.72), 0 0 24px rgba(255,108,24,0.35);
+      animation: flameFlicker 0.2s infinite alternate ease-in-out;
+    }
+
+    #impactFire {
+      position: absolute;
+      width: 46px;
+      height: 62px;
+      opacity: 0;
+      pointer-events: none;
+      z-index: 15;
+    }
+
+    #impactFire::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 50% 75%, #fff8b6 0%, #ffd55b 30%, #ff9a22 62%, rgba(255,109,33,0.95) 100%);
+      border-radius: 50% 50% 42% 42% / 62% 62% 38% 38%;
+      box-shadow: 0 0 18px rgba(255,173,51,0.82), 0 0 32px rgba(255,108,24,0.42);
+      animation: impactPulse 0.18s infinite alternate ease-in-out;
+    }
+
+    #messageBox {
+      position: absolute;
+      left: 50%;
+      bottom: 22px;
+      transform: translateX(-50%) translateY(18px);
+      min-width: min(86vw, 420px);
+      max-width: min(90vw, 560px);
+      padding: 14px 18px;
+      border-radius: 18px;
+      background: rgba(12, 18, 24, 0.86);
+      border: 1px solid rgba(255,255,255,0.12);
+      box-shadow: 0 14px 36px rgba(0,0,0,0.28);
+      color: #fff4de;
+      z-index: 40;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.18s ease, transform 0.18s ease;
+      backdrop-filter: blur(6px);
+    }
+
+    #messageBox.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    #messageTitle {
+      display: block;
+      font-size: 15px;
+      font-weight: 900;
+      letter-spacing: 0.3px;
+      margin-bottom: 4px;
+    }
+
+    #messageText {
+      display: block;
+      font-size: 14px;
+      line-height: 1.35;
+      opacity: 0.96;
+    }
+
+    #messageBox.success {
+      background: rgba(17, 34, 22, 0.9);
+      border-color: rgba(120, 208, 139, 0.35);
+      box-shadow: 0 14px 36px rgba(21, 69, 34, 0.28);
+    }
+
+    #messageBox.warning {
+      background: rgba(46, 27, 12, 0.92);
+      border-color: rgba(255, 166, 92, 0.35);
+      box-shadow: 0 14px 36px rgba(97, 52, 13, 0.28);
+    }
+
+    #messageBox.danger {
+      background: rgba(52, 15, 15, 0.92);
+      border-color: rgba(255, 108, 108, 0.35);
+      box-shadow: 0 14px 36px rgba(95, 22, 22, 0.28);
+    }
+
+    @keyframes flameFlicker {
+      from { transform: scale(0.98) rotate(-1deg); }
+      to { transform: scale(1.04) rotate(1.5deg); }
+    }
+
+    @keyframes impactPulse {
+      from { transform: scale(0.95); }
+      to { transform: scale(1.08); }
+    }
+      to { transform: scale(1.08); }
+    }
+  </style>  <script>
+    const splash = document.getElementById('splash');
+    const game = document.getElementById('game');
+    const playHotspot = document.getElementById('playHotspot');
+    const scoreValue = document.getElementById('scoreValue');
+    const matchInHand = document.getElementById('matchInHand');
+    const flyingMatch = document.getElementById('flyingMatch');
+    const impactFire = document.getElementById('impactFire');
+    const gameScene = document.getElementById('gameScene');
+    const messageBox = document.getElementById('messageBox');
+    const messageTitle = document.getElementById('messageTitle');
+    const messageText = document.getElementById('messageText');
+
+    let score = 0;
+    let animating = false;
+    let fireTimeout = null;
+    let fireActive = false;
+    let activeFireTarget = null;
+    let activeDangerLevel = 0;
+    let messageTimer = null;
+
+    playHotspot.addEventListener('click', () => {
+      splash.style.display = 'none';
+      game.style.display = 'block';
+    });
+
+    function zoneCenter(el) {
+      const rect = el.getBoundingClientRect();
+      const parent = gameScene.getBoundingClientRect();
+      return {
+        x: rect.left - parent.left + rect.width / 2,
+        y: rect.top - parent.top + rect.height / 2
+      };
+    }
+
+    function clearFireState() {
+      fireActive = false;
+      activeFireTarget = null;
+      activeDangerLevel = 0;
+      impactFire.style.opacity = '0';
+      impactFire.onclick = null;
+      impactFire.style.pointerEvents = 'none';
+      if (fireTimeout) {
+        clearTimeout(fireTimeout);
+        fireTimeout = null;
+      }
+    }
+
+    function showMessage(kind, title, text, duration = 1800) {
+      if (messageTimer) {
+        clearTimeout(messageTimer);
+        messageTimer = null;
+      }
+
+      messageBox.className = '';
+      messageBox.id = 'messageBox';
+      messageBox.classList.add(kind, 'show');
+      messageTitle.textContent = title;
+      messageText.textContent = text;
+
+      messageTimer = setTimeout(() => {
+        messageBox.classList.remove('show', 'success', 'warning', 'danger');
+      }, duration);
+    }
+    }
+
+    function failByFire() {
+      clearFireState();
+      showMessage('danger', 'Perdiste la partida', 'El fuego no fue apagado a tiempo. Reiniciá para volver a intentarlo.', 2600);
+      score = Math.max(0, score);
+      scoreValue.textContent = score;
+    }
+
+    function showExtinguishChance(targetEl, dangerLevel) {
+      const end = zoneCenter(targetEl);
+      impactFire.style.left = `${end.x - 23}px`;
+      impactFire.style.top = `${end.y - 36}px`;
+      impactFire.style.opacity = '1';
+      impactFire.style.pointerEvents = 'auto';
+      fireActive = true;
+      activeFireTarget = targetEl;
+      activeDangerLevel = dangerLevel;
+
+      impactFire.onclick = extinguishFire;
+
+      const wait = dangerLevel === 3 ? 1200 : dangerLevel === 2 ? 1500 : 1800;
+      fireTimeout = setTimeout(failByFire, wait);
+    }
+
+    function extinguishFire() {
+      if (!fireActive) return;
+
+      if (fireTimeout) {
+        clearTimeout(fireTimeout);
+        fireTimeout = null;
+      }
+
+      if (activeDangerLevel === 3) score -= 8;
+      if (activeDangerLevel === 2) score -= 6;
+      if (activeDangerLevel === 1) score -= 4;
+
+      scoreValue.textContent = score;
+      impactFire.style.opacity = '0';
+      impactFire.style.pointerEvents = 'none';
+      showMessage('warning', 'Reaccionaste a tiempo', 'Apagaste el fuego y seguís jugando, pero perdiste algunos puntos.', 2000);
+      clearFireState();
+    }
+
+      if (activeDangerLevel === 3) score -= 8;
+      if (activeDangerLevel === 2) score -= 6;
+      if (activeDangerLevel === 1) score -= 4;
+
+      scoreValue.textContent = score;
+      impactFire.style.opacity = '0';
+      impactFire.style.pointerEvents = 'none';
+      alert('Bien: reaccionaste a tiempo y apagaste el fuego.');
+      clearFireState();
+    }
+
+    function animateMatchTo(targetEl, dangerLevel = 0) {
+      if (animating || fireActive) return;
+      animating = true;
+
+      const startX = gameScene.clientWidth * 0.73;
+      const startY = gameScene.clientHeight * 0.64;
+      const end = zoneCenter(targetEl);
+
+      matchInHand.style.opacity = '0';
+      flyingMatch.style.opacity = '1';
+      impactFire.style.opacity = '0';
+      impactFire.style.pointerEvents = 'none';
+
+      const duration = 420;
+      const startTime = performance.now();
+
+      function frame(now) {
+        const t = Math.min(1, (now - startTime) / duration);
+        const eased = 1 - Math.pow(1 - t, 3);
+        const arc = Math.sin(t * Math.PI) * 55;
+        const x = startX + (end.x - startX) * eased;
+        const y = startY + (end.y - startY) * eased - arc;
+        const angle = 26 - (34 * eased);
+
+        flyingMatch.style.left = `${x - 9}px`;
+        flyingMatch.style.top = `${y - 44}px`;
+        flyingMatch.style.transform = `rotate(${angle}deg)`;
+
+        if (t < 1) {
+          requestAnimationFrame(frame);
+          return;
+        }
+
+        flyingMatch.style.opacity = '0';
+
+        if (dangerLevel > 0) {
+          showExtinguishChance(targetEl, dangerLevel);
+          setTimeout(() => {
+            matchInHand.style.opacity = '1';
+            animating = false;
+          }, 120);
+        } else {
+          setTimeout(() => {
+            matchInHand.style.opacity = '1';
+            animating = false;
+          }, 160);
+        }
+      }
+
+      requestAnimationFrame(frame);
+    }
+
+    function applyResult(type, dangerLevel, targetEl) {
+      if (animating || fireActive) return;
+
+      animateMatchTo(targetEl, dangerLevel);
+
+      if (type === 'safe') {
+        score += 10;
+        showMessage('success', 'Buena decisión', 'Elegiste una zona segura para tirar el fósforo.', 1600);
+      }
+
+      if (type === 'danger-high') {
+        score -= 30;
+        showMessage('danger', 'Muy peligroso', 'Las hojas secas prenden rapidísimo. Tocá el fuego para apagarlo.', 2000);
+      }
+
+      if (type === 'danger-mid') {
+        score -= 20;
+        showMessage('danger', 'Cuidado', 'La leña también puede prender. Tocá el fuego para apagarlo.', 2000);
+      }
+
+      if (type === 'danger-low') {
+        score -= 10;
+        showMessage('danger', 'Atención', 'El fence es menos peligroso, pero igual puede prender.', 2000);
+      }
+
+      scoreValue.textContent = score;
+    }
+
+    document.getElementById('zoneWater').addEventListener('click', function () {
+      applyResult('safe', 0, this);
+    });
+
+    document.getElementById('zoneCement').addEventListener('click', function () {
+      applyResult('safe', 0, this);
+    });
+
+    document.getElementById('zoneLeaves').addEventListener('click', function () {
+      applyResult('danger-high', 3, this);
+    });
+
+    document.getElementById('zoneLogs').addEventListener('click', function () {
+      applyResult('danger-mid', 2, this);
+    });
+
+    document.getElementById('zoneFence').addEventListener('click', function () {
+      applyResult('danger-low', 1, this);
+    });
+  </script></body>
+</html>

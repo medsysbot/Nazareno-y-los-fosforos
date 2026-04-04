@@ -37,9 +37,6 @@
       height: 100%;
     }
 
-    /* =========================
-       SPLASH
-    ========================= */
     #splash {
       background-image: url('splash.png');
       background-size: cover;
@@ -87,9 +84,6 @@
       z-index: 40;
     }
 
-    /* =========================
-       GAME
-    ========================= */
     #game {
       display: none;
       background-image: url('game.png');
@@ -243,21 +237,39 @@
 
     #impactFire {
       position: absolute;
-      width: 46px;
-      height: 62px;
+      width: 52px;
+      height: 72px;
       opacity: 0;
       pointer-events: none;
       z-index: 15;
+      transform-origin: center bottom;
+      transform: scale(0.72);
+      transition: opacity 0.15s ease, transform 0.32s ease;
     }
 
     #impactFire::before {
       content: "";
       position: absolute;
       inset: 0;
-      background: radial-gradient(circle at 50% 75%, #fff8b6 0%, #ffd55b 30%, #ff9a22 62%, rgba(255,109,33,0.95) 100%);
+      background: radial-gradient(circle at 50% 75%, #fff8b6 0%, #ffd55b 28%, #ff9820 58%, rgba(255,92,20,0.98) 100%);
       border-radius: 50% 50% 42% 42% / 62% 62% 38% 38%;
-      box-shadow: 0 0 18px rgba(255,173,51,0.82), 0 0 32px rgba(255,108,24,0.42);
+      box-shadow:
+        0 0 16px rgba(255,173,51,0.82),
+        0 0 30px rgba(255,108,24,0.48),
+        0 0 48px rgba(255,72,0,0.20);
       animation: impactPulse 0.18s infinite alternate ease-in-out;
+    }
+
+    #impactFire.grow-1 {
+      transform: scale(0.78);
+    }
+
+    #impactFire.grow-2 {
+      transform: scale(1.15);
+    }
+
+    #impactFire.grow-3 {
+      transform: scale(1.65);
     }
 
     #messageBox {
@@ -324,8 +336,8 @@
     }
 
     @keyframes impactPulse {
-      from { transform: scale(0.95); }
-      to { transform: scale(1.08); }
+      from { filter: brightness(0.98); }
+      to { filter: brightness(1.10); }
     }
 
     @media (max-width: 768px) {
@@ -418,7 +430,6 @@
       <div id="flyingMatch"></div>
       <div id="impactFire"></div>
 
-      <!-- ZONAS: agregá zone-debug a cada una si querés verlas -->
       <button class="zone" id="zoneWater" style="left: 2%; top: 40%; width: 20%; height: 20%;" aria-label="Agua"></button>
       <button class="zone" id="zoneCement" style="left: 24%; top: 44%; width: 52%; height: 46%;" aria-label="Cemento"></button>
       <button class="zone" id="zoneLeaves" style="left: 15%; top: 42%; width: 22%; height: 12%;" aria-label="Hojas secas"></button>
@@ -453,38 +464,20 @@
     let score = 0;
     let animating = false;
     let fireTimeout = null;
+    let lossVisualTimeout = null;
+    let fireGrowthTimers = [];
     let fireActive = false;
     let activeDangerLevel = 0;
     let messageTimer = null;
 
-    /* =========================
-       AJUSTE FINO
-       Tocá solo estos valores
-    ========================= */
-
-    // Hotspot JUGAR (referencia)
-    // CSS actual:
-    // left: 56%;
-    // bottom: 4.3%;
-    // width: 280px;
-    // height: 102px;
-
-    // Fósforo en mano (CSS actual):
-    // right: 20.2%;
-    // top: 60.6%;
-    // rotate: 27deg;
-
-    // Punto de salida del fósforo animado:
-    const THROW_START_X = 0.80; // más a la derecha = subir valor
-    const THROW_START_Y = 0.72; // más abajo = subir valor
-
-    // Curvatura del vuelo:
+    /* AJUSTE FINO */
+    const THROW_START_X = 0.80;
+    const THROW_START_Y = 0.72;
     const THROW_ARC = 55;
 
     playHotspot.addEventListener('click', () => {
       splash.style.display = 'none';
       game.style.display = 'block';
-
       bgMusic.volume = 0.35;
       bgMusic.play().catch(() => {});
     });
@@ -521,16 +514,31 @@
 
     function startSiren() {
       sirenSound.currentTime = 0;
-      sirenSound.volume = 0.55;
+      sirenSound.volume = 0.60;
       sirenSound.play().catch(() => {});
+    }
+
+    function clearGrowthTimers() {
+      fireGrowthTimers.forEach(id => clearTimeout(id));
+      fireGrowthTimers = [];
+      if (lossVisualTimeout) {
+        clearTimeout(lossVisualTimeout);
+        lossVisualTimeout = null;
+      }
+    }
+
+    function resetFireVisual() {
+      impactFire.classList.remove('grow-1', 'grow-2', 'grow-3');
+      impactFire.style.opacity = '0';
+      impactFire.style.pointerEvents = 'none';
+      impactFire.onclick = null;
     }
 
     function clearFireState() {
       fireActive = false;
       activeDangerLevel = 0;
-      impactFire.style.opacity = '0';
-      impactFire.style.pointerEvents = 'none';
-      impactFire.onclick = null;
+      clearGrowthTimers();
+      resetFireVisual();
       stopSiren();
 
       if (fireTimeout) {
@@ -540,14 +548,29 @@
     }
 
     function failByFire() {
-      clearFireState();
+      fireActive = false;
+
+      if (fireTimeout) {
+        clearTimeout(fireTimeout);
+        fireTimeout = null;
+      }
+
+      impactFire.classList.remove('grow-1', 'grow-2');
+      impactFire.classList.add('grow-3');
+      impactFire.style.opacity = '1';
+      impactFire.style.pointerEvents = 'none';
+
       showMessage(
         'danger',
         'Llegaron los bomberos',
-        'No apagaste el fuego a tiempo y perdiste la partida.',
-        2600
+        'No apagaste el fuego a tiempo. El incendio creció y perdiste la partida.',
+        3200
       );
-      scoreValue.textContent = score;
+
+      lossVisualTimeout = setTimeout(() => {
+        stopSiren();
+        resetFireVisual();
+      }, 1800);
     }
 
     function extinguishFire() {
@@ -558,20 +581,19 @@
         fireTimeout = null;
       }
 
+      clearGrowthTimers();
+
       if (activeDangerLevel === 3) score -= 8;
       if (activeDangerLevel === 2) score -= 6;
       if (activeDangerLevel === 1) score -= 4;
 
       scoreValue.textContent = score;
 
-      impactFire.style.opacity = '0';
-      impactFire.style.pointerEvents = 'none';
-
       showMessage(
         'warning',
         'Reaccionaste a tiempo',
-        'Apagaste el fuego antes de que llegaran los bomberos.',
-        2000
+        'Apagaste el fuego antes de que creciera más y antes de que llegaran los bomberos.',
+        2200
       );
 
       clearFireState();
@@ -580,10 +602,12 @@
     function showExtinguishChance(targetEl, dangerLevel) {
       const end = zoneCenter(targetEl);
 
-      impactFire.style.left = `${end.x - 23}px`;
-      impactFire.style.top = `${end.y - 36}px`;
+      impactFire.style.left = `${end.x - 26}px`;
+      impactFire.style.top = `${end.y - 44}px`;
       impactFire.style.opacity = '1';
       impactFire.style.pointerEvents = 'auto';
+      impactFire.classList.remove('grow-2', 'grow-3');
+      impactFire.classList.add('grow-1');
 
       fireActive = true;
       activeDangerLevel = dangerLevel;
@@ -591,8 +615,23 @@
 
       startSiren();
 
-      const wait = dangerLevel === 3 ? 1200 : dangerLevel === 2 ? 1500 : 1800;
-      fireTimeout = setTimeout(failByFire, wait);
+      const reactTime = dangerLevel === 3 ? 1800 : dangerLevel === 2 ? 2200 : 2600;
+      const grow1 = Math.floor(reactTime * 0.35);
+      const grow2 = Math.floor(reactTime * 0.72);
+
+      fireGrowthTimers.push(setTimeout(() => {
+        if (!fireActive) return;
+        impactFire.classList.remove('grow-1');
+        impactFire.classList.add('grow-2');
+      }, grow1));
+
+      fireGrowthTimers.push(setTimeout(() => {
+        if (!fireActive) return;
+        impactFire.classList.remove('grow-2');
+        impactFire.classList.add('grow-3');
+      }, grow2));
+
+      fireTimeout = setTimeout(failByFire, reactTime);
     }
 
     function animateMatchTo(targetEl, dangerLevel = 0) {
@@ -668,8 +707,8 @@
         showMessage(
           'danger',
           'Muy peligroso',
-          'Las hojas secas prenden rapidísimo. Apagá el fuego antes de que lleguen los bomberos.',
-          2200
+          'Las hojas secas prenden rapidísimo. El fuego va a crecer si no actuás ya.',
+          2400
         );
       }
 
@@ -678,8 +717,8 @@
         showMessage(
           'danger',
           'Cuidado',
-          'La leña también puede prender. Tocá el fuego para apagarlo.',
-          2000
+          'La leña puede prender y crecer en pocos segundos. Tocá el fuego para apagarlo.',
+          2200
         );
       }
 
@@ -688,8 +727,8 @@
         showMessage(
           'danger',
           'Atención',
-          'El fence es menos peligroso, pero igual puede prender.',
-          2000
+          'El fence también puede prender. Si te demorás, el fuego crece.',
+          2200
         );
       }
 

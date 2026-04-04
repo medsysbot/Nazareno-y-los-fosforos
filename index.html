@@ -45,45 +45,6 @@
       z-index: 20;
     }
 
-    #playHotspot {
-      position: absolute;
-      left: 56%;
-      bottom: 4.3%;
-      transform: translateX(-50%);
-      width: 280px;
-      height: 102px;
-      border: none;
-      outline: none;
-      background: transparent;
-      border-radius: 999px;
-      cursor: pointer;
-      z-index: 50;
-      box-shadow: 0 0 24px rgba(255, 70, 0, 0.08);
-    }
-
-    #playHotspot:focus,
-    #playHotspot:active,
-    #playHotspot:focus-visible {
-      outline: none;
-      border: none;
-      box-shadow: 0 0 24px rgba(255, 70, 0, 0.08);
-    }
-
-    .debug-hotspot {
-      display: none;
-      position: absolute;
-      left: 56%;
-      bottom: 4.3%;
-      transform: translateX(-50%);
-      width: 280px;
-      height: 102px;
-      border-radius: 999px;
-      border: 2px dashed rgba(255,255,255,0.75);
-      background: rgba(255, 40, 0, 0.18);
-      pointer-events: none;
-      z-index: 40;
-    }
-
     #game {
       display: none;
       background-image: url('game.png');
@@ -152,7 +113,10 @@
 
     .zone:focus,
     .zone:active,
-    .zone:focus-visible {
+    .zone:focus-visible,
+    #playHotspot:focus,
+    #playHotspot:active,
+    #playHotspot:focus-visible {
       outline: none;
       border: none;
       box-shadow: none;
@@ -164,14 +128,28 @@
       border-radius: 10px;
     }
 
+    .debug-hotspot {
+      display: none;
+      position: absolute;
+      border-radius: 999px;
+      border: 2px dashed rgba(255,255,255,0.75);
+      background: rgba(255, 40, 0, 0.18);
+      pointer-events: none;
+      z-index: 40;
+    }
+
+    #playHotspot {
+      position: absolute;
+      border: none;
+      outline: none;
+      background: transparent;
+      border-radius: 999px;
+      cursor: pointer;
+      z-index: 50;
+    }
+
     #matchInHand {
       position: absolute;
-      right: 14.2%;
-      top: 25.6%;
-      width: 20px;
-      height: 116px;
-      transform: rotate(27deg);
-      transform-origin: center 88%;
       z-index: 12;
       transition: opacity 0.12s ease;
       pointer-events: none;
@@ -264,11 +242,8 @@
     #impactFire.grow-2 { transform: scale(1.18); }
     #impactFire.grow-3 { transform: scale(1.78); }
 
-    /* Mensaje centrado en la zona marcada */
     #messageBox {
       position: absolute;
-      left: 70%;
-      top: 6%;
       transform: translate(-50%, -50%) scale(0.96);
       min-width: min(78vw, 420px);
       max-width: min(84vw, 520px);
@@ -324,7 +299,6 @@
       box-shadow: 0 18px 40px rgba(117, 28, 28, 0.34);
     }
 
-    /* Game over centrado */
     #gameOverOverlay {
       position: absolute;
       inset: 0;
@@ -378,19 +352,61 @@
       to { filter: brightness(1.10); }
     }
 
-    @media (max-width: 768px) {
+    /* ==========================================
+       AJUSTES PC / LAPTOP
+       TOCA SOLO ESTE BLOQUE EN COMPUTADORA
+    ========================================== */
+    @media (min-width: 769px) {
       #playHotspot {
-        width: 260px;
-        height: 96px;
-        bottom: 4.1%;
         left: 56%;
+        bottom: 4.3%;
+        transform: translateX(-50%);
+        width: 280px;
+        height: 102px;
       }
 
       .debug-hotspot {
+        left: 56%;
+        bottom: 4.3%;
+        transform: translateX(-50%);
+        width: 280px;
+        height: 102px;
+      }
+
+      #matchInHand {
+        right: 20.2%;
+        top: 60.6%;
+        width: 20px;
+        height: 116px;
+        transform: rotate(27deg);
+        transform-origin: center 88%;
+      }
+
+      #messageBox {
+        left: 50%;
+        top: 56%;
+      }
+    }
+
+    /* ==========================================
+       AJUSTES MOVIL / TABLET
+       TOCA SOLO ESTE BLOQUE EN TELÉFONO
+    ========================================== */
+    @media (max-width: 768px) {
+      #playHotspot {
+        left: 56%;
+        bottom: 4.1%;
+        transform: translateX(-50%);
         width: 260px;
         height: 96px;
-        bottom: 4.1%;
+      }
+
+      .debug-hotspot {
         left: 56%;
+        bottom: 4.1%;
+        transform: translateX(-50%);
+        width: 260px;
+        height: 96px;
       }
 
       .hud {
@@ -416,9 +432,12 @@
         top: 61.2%;
         width: 18px;
         height: 108px;
+        transform: rotate(27deg);
+        transform-origin: center 88%;
       }
 
       #messageBox {
+        left: 50%;
         top: 54%;
         min-width: min(82vw, 340px);
         padding: 14px 16px;
@@ -468,6 +487,11 @@
       <div id="flyingMatch"></div>
       <div id="impactFire"></div>
 
+      <!-- ==========================================
+           ZONAS
+           Para verlas: agregá zone-debug
+           Ejemplo: class="zone zone-debug"
+      ========================================== -->
       <button class="zone" id="zoneWater" style="left: 2%; top: 40%; width: 20%; height: 20%;" aria-label="Agua"></button>
       <button class="zone" id="zoneCement" style="left: 24%; top: 44%; width: 52%; height: 46%;" aria-label="Cemento"></button>
       <button class="zone" id="zoneLeaves" style="left: 15%; top: 42%; width: 22%; height: 12%;" aria-label="Hojas secas"></button>
@@ -517,9 +541,13 @@
     let activeDangerLevel = 0;
     let messageTimer = null;
 
+    /* ==========================================
+       AJUSTES JS
+       TOCA SOLO ESTOS TRES PARA EL VUELO
+    ========================================== */
     const THROW_START_X = 0.80;
-    const THROW_START_Y = 0.64;
-    const THROW_ARC = 75;
+    const THROW_START_Y = 0.72;
+    const THROW_ARC = 55;
 
     playHotspot.addEventListener('click', () => {
       splash.style.display = 'none';
@@ -538,9 +566,7 @@
     }
 
     function showMessage(kind, title, text, duration = 1800) {
-      if (messageTimer) {
-        clearTimeout(messageTimer);
-      }
+      if (messageTimer) clearTimeout(messageTimer);
       messageBox.className = '';
       messageBox.classList.add(kind, 'show');
       messageTitle.textContent = title;
@@ -565,14 +591,10 @@
     function clearGrowthTimers() {
       fireGrowthTimers.forEach(id => clearTimeout(id));
       fireGrowthTimers = [];
-      if (lossVisualTimeout) {
-        clearTimeout(lossVisualTimeout);
-        lossVisualTimeout = null;
-      }
-      if (sirenStopTimeout) {
-        clearTimeout(sirenStopTimeout);
-        sirenStopTimeout = null;
-      }
+      if (lossVisualTimeout) clearTimeout(lossVisualTimeout);
+      if (sirenStopTimeout) clearTimeout(sirenStopTimeout);
+      lossVisualTimeout = null;
+      sirenStopTimeout = null;
     }
 
     function resetFireVisual() {
@@ -615,7 +637,6 @@
       messageBox.classList.remove('show');
       gameOverOverlay.classList.add('show');
 
-      // 8 segundos totales visibles/sonoros aprox
       sirenStopTimeout = setTimeout(() => {
         stopSiren();
       }, 8000);
@@ -670,7 +691,6 @@
 
       startSiren();
 
-      // crece antes, pero la pérdida visual/sonora total dura 8s
       const reactTime = 7600;
 
       fireGrowthTimers.push(setTimeout(() => {
@@ -749,42 +769,22 @@
 
       if (type === 'safe') {
         score += 10;
-        showMessage(
-          'success',
-          'Buena decisión',
-          'Elegiste una zona segura para tirar el fósforo.',
-          1800
-        );
+        showMessage('success', 'Buena decisión', 'Elegiste una zona segura para tirar el fósforo.', 1800);
       }
 
       if (type === 'danger-high') {
         score -= 30;
-        showMessage(
-          'danger',
-          'Muy peligroso',
-          'Las hojas secas prenden rapidísimo. Reaccioná antes de que el fuego crezca.',
-          2500
-        );
+        showMessage('danger', 'Muy peligroso', 'Las hojas secas prenden rapidísimo. Reaccioná antes de que el fuego crezca.', 2500);
       }
 
       if (type === 'danger-mid') {
         score -= 20;
-        showMessage(
-          'danger',
-          'Cuidado',
-          'La leña puede prender y crecer. Tocá el fuego para apagarlo.',
-          2400
-        );
+        showMessage('danger', 'Cuidado', 'La leña puede prender y crecer. Tocá el fuego para apagarlo.', 2400);
       }
 
       if (type === 'danger-low') {
         score -= 10;
-        showMessage(
-          'danger',
-          'Atención',
-          'El fence también puede prender. Si te demorás, el fuego crece.',
-          2400
-        );
+        showMessage('danger', 'Atención', 'El fence también puede prender. Si te demorás, el fuego crece.', 2400);
       }
 
       scoreValue.textContent = score;

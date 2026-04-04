@@ -106,20 +106,9 @@
       position: absolute;
       border: none;
       background: transparent;
-      cursor: pointer;
       z-index: 8;
       border-radius: 12px;
-    }
-
-    .zone:focus,
-    .zone:active,
-    .zone:focus-visible,
-    #playHotspot:focus,
-    #playHotspot:active,
-    #playHotspot:focus-visible {
-      outline: none;
-      border: none;
-      box-shadow: none;
+      pointer-events: none;
     }
 
     .zone-debug {
@@ -146,6 +135,38 @@
       border-radius: 999px;
       cursor: pointer;
       z-index: 50;
+    }
+
+    /* Hotspot para tocar la mano/fósforo y lanzar */
+    #throwHotspot {
+      position: absolute;
+      border: none;
+      outline: none;
+      background: transparent;
+      border-radius: 30px;
+      cursor: pointer;
+      z-index: 18;
+    }
+
+    #throwHotspot:focus,
+    #throwHotspot:active,
+    #throwHotspot:focus-visible,
+    #playHotspot:focus,
+    #playHotspot:active,
+    #playHotspot:focus-visible {
+      outline: none;
+      border: none;
+      box-shadow: none;
+    }
+
+    .debug-throw {
+      display: none;
+      position: absolute;
+      border-radius: 30px;
+      border: 2px dashed rgba(255,255,255,0.75);
+      background: rgba(255, 200, 0, 0.14);
+      pointer-events: none;
+      z-index: 17;
     }
 
     #matchInHand {
@@ -335,7 +356,6 @@
 
     /* ==========================================
        AJUSTES PC / LAPTOP
-       TOCA SOLO ESTE BLOQUE EN COMPUTADORA
     ========================================== */
     @media (min-width: 769px) {
       #playHotspot {
@@ -352,6 +372,20 @@
         transform: translateX(-50%);
         width: 280px;
         height: 102px;
+      }
+
+      #throwHotspot {
+        right: 16%;
+        top: 53%;
+        width: 120px;
+        height: 180px;
+      }
+
+      .debug-throw {
+        right: 16%;
+        top: 53%;
+        width: 120px;
+        height: 180px;
       }
 
       #matchInHand {
@@ -371,7 +405,6 @@
 
     /* ==========================================
        AJUSTES MÓVIL / TABLET
-       TOCA SOLO ESTE BLOQUE EN TELÉFONO
     ========================================== */
     @media (max-width: 768px) {
       #playHotspot {
@@ -408,9 +441,23 @@
         font-size: 18px;
       }
 
+      #throwHotspot {
+        right: 6%;
+        top: 20%;
+        width: 150px;
+        height: 220px;
+      }
+
+      .debug-throw {
+        right: 6%;
+        top: 20%;
+        width: 150px;
+        height: 220px;
+      }
+
       #matchInHand {
-        right: 25.7%;
-        top: 40.2%;
+        right: 13.7%;
+        top: 30.2%;
         width: 18px;
         height: 108px;
         transform: rotate(27deg);
@@ -418,8 +465,8 @@
       }
 
       #messageBox {
-        left: 52%;
-        top: 27%;
+        left: 50%;
+        top: 25%;
         min-width: min(82vw, 340px);
         padding: 14px 16px;
       }
@@ -455,15 +502,15 @@
       </div>
       <div class="hud-item">
         <span class="hud-label">NIVEL</span>
-        <span class="hud-value">1</span>
+        <span class="hud-value" id="levelValue">1</span>
       </div>
       <div class="hud-item">
-        <span class="hud-label">TIEMPO</span>
-        <span class="hud-value">3s</span>
+        <span class="hud-label">TIROS</span>
+        <span class="hud-value" id="shotsValue">0</span>
       </div>
       <div class="hud-item">
         <span class="hud-label">RACHA</span>
-        <span class="hud-value">0</span>
+        <span class="hud-value" id="streakValue">0</span>
       </div>
     </div>
 
@@ -472,16 +519,16 @@
       <div id="flyingMatch"></div>
       <div id="impactFire"></div>
 
-      <!-- ==========================================
-           ZONAS
-           Para verlas: agregá zone-debug
-           Ejemplo: class="zone zone-debug"
-      ========================================== -->
+      <!-- zonas internas -->
       <button class="zone" id="zoneWater" style="left: 2%; top: 40%; width: 20%; height: 20%;" aria-label="Agua"></button>
       <button class="zone" id="zoneCement" style="left: 24%; top: 44%; width: 52%; height: 46%;" aria-label="Cemento"></button>
       <button class="zone" id="zoneLeaves" style="left: 15%; top: 42%; width: 22%; height: 12%;" aria-label="Hojas secas"></button>
       <button class="zone" id="zoneLogs" style="left: 83%; top: 33%; width: 16%; height: 15%;" aria-label="Leña"></button>
       <button class="zone" id="zoneFence" style="left: 78%; top: 16%; width: 21%; height: 32%;" aria-label="Fence"></button>
+
+      <!-- tocar aquí para lanzar -->
+      <button id="throwHotspot" aria-label="Lanzar fósforo"></button>
+      <div class="debug-throw"></div>
     </div>
 
     <div id="messageBox">
@@ -498,11 +545,16 @@
     const splash = document.getElementById('splash');
     const game = document.getElementById('game');
     const playHotspot = document.getElementById('playHotspot');
+    const throwHotspot = document.getElementById('throwHotspot');
 
     const bgMusic = document.getElementById('bgMusic');
     const sirenSound = document.getElementById('sirenSound');
 
     const scoreValue = document.getElementById('scoreValue');
+    const levelValue = document.getElementById('levelValue');
+    const shotsValue = document.getElementById('shotsValue');
+    const streakValue = document.getElementById('streakValue');
+
     const matchInHand = document.getElementById('matchInHand');
     const flyingMatch = document.getElementById('flyingMatch');
     const impactFire = document.getElementById('impactFire');
@@ -514,6 +566,10 @@
     const gameOverOverlay = document.getElementById('gameOverOverlay');
 
     let score = 0;
+    let level = 1;
+    let shots = 0;
+    let streak = 0;
+
     let animating = false;
     let fireTimeout = null;
     let sirenStopTimeout = null;
@@ -531,11 +587,27 @@
     const THROW_START_Y = 0.82;
     const THROW_ARC = 75;
 
+    /* ==========================================
+       PROBABILIDADES
+    ========================================== */
+    const DESTINATIONS = [
+      { id: 'zoneWater', type: 'safe', danger: 0, weight: 20, title: 'Agua' },
+      { id: 'zoneCement', type: 'safe', danger: 0, weight: 25, title: 'Cemento' },
+      { id: 'zoneLeaves', type: 'danger-high', danger: 3, weight: 25, title: 'Hojas secas' },
+      { id: 'zoneLogs', type: 'danger-mid', danger: 2, weight: 20, title: 'Leña' },
+      { id: 'zoneFence', type: 'danger-low', danger: 1, weight: 10, title: 'Fence' }
+    ];
+
     playHotspot.addEventListener('click', () => {
       splash.style.display = 'none';
       game.style.display = 'block';
       bgMusic.volume = 0.35;
       bgMusic.play().catch(() => {});
+    });
+
+    throwHotspot.addEventListener('click', () => {
+      if (animating || fireActive) return;
+      launchRandomMatch();
     });
 
     function zoneCenter(el) {
@@ -590,6 +662,18 @@
       gameOverOverlay.classList.remove('show');
     }
 
+    function updateHud() {
+      scoreValue.textContent = score;
+      levelValue.textContent = level;
+      shotsValue.textContent = shots;
+      streakValue.textContent = streak;
+    }
+
+    function updateLevel() {
+      level = 1 + Math.floor(shots / 5);
+      updateHud();
+    }
+
     function clearFireState() {
       fireActive = false;
       activeDangerLevel = 0;
@@ -626,6 +710,9 @@
       lossVisualTimeout = setTimeout(() => {
         resetFireVisual();
       }, 8000);
+
+      streak = 0;
+      updateHud();
     }
 
     function extinguishFire() {
@@ -643,7 +730,8 @@
       if (activeDangerLevel === 2) score -= 6;
       if (activeDangerLevel === 1) score -= 4;
 
-      scoreValue.textContent = score;
+      streak = 0;
+      updateHud();
 
       showMessage(
         'warning',
@@ -690,7 +778,7 @@
       fireTimeout = setTimeout(failByFire, reactTime);
     }
 
-    function animateMatchTo(targetEl, dangerLevel = 0) {
+    function animateMatchTo(targetEl, dangerLevel = 0, afterLanding) {
       if (animating || fireActive) return;
       animating = true;
 
@@ -726,6 +814,10 @@
 
         flyingMatch.style.opacity = '0';
 
+        if (typeof afterLanding === 'function') {
+          afterLanding();
+        }
+
         if (dangerLevel > 0) {
           showExtinguishChance(targetEl, dangerLevel);
           setTimeout(() => {
@@ -743,54 +835,76 @@
       requestAnimationFrame(frame);
     }
 
-    function applyResult(type, dangerLevel, targetEl) {
-      if (animating || fireActive) return;
+    function pickRandomDestination() {
+      const total = DESTINATIONS.reduce((sum, item) => sum + item.weight, 0);
+      let roll = Math.random() * total;
 
-      resetGameOver();
-      animateMatchTo(targetEl, dangerLevel);
-
-      if (type === 'safe') {
-        score += 10;
-        showMessage('success', 'Buena decisión', 'Elegiste una zona segura para tirar el fósforo.', 1800);
+      for (const item of DESTINATIONS) {
+        roll -= item.weight;
+        if (roll <= 0) return item;
       }
-
-      if (type === 'danger-high') {
-        score -= 30;
-        showMessage('danger', 'Muy peligroso', 'Las hojas secas prenden rapidísimo. Reaccioná antes de que el fuego crezca.', 2500);
-      }
-
-      if (type === 'danger-mid') {
-        score -= 20;
-        showMessage('danger', 'Cuidado', 'La leña puede prender y crecer. Tocá el fuego para apagarlo.', 2400);
-      }
-
-      if (type === 'danger-low') {
-        score -= 10;
-        showMessage('danger', 'Atención', 'El fence también puede prender. Si te demorás, el fuego crece.', 2400);
-      }
-
-      scoreValue.textContent = score;
+      return DESTINATIONS[0];
     }
 
-    document.getElementById('zoneWater').addEventListener('click', function () {
-      applyResult('safe', 0, this);
-    });
+    function launchRandomMatch() {
+      const picked = pickRandomDestination();
+      const targetEl = document.getElementById(picked.id);
 
-    document.getElementById('zoneCement').addEventListener('click', function () {
-      applyResult('safe', 0, this);
-    });
+      if (!targetEl) return;
 
-    document.getElementById('zoneLeaves').addEventListener('click', function () {
-      applyResult('danger-high', 3, this);
-    });
+      shots += 1;
+      updateLevel();
+      resetGameOver();
 
-    document.getElementById('zoneLogs').addEventListener('click', function () {
-      applyResult('danger-mid', 2, this);
-    });
+      animateMatchTo(targetEl, picked.danger, () => {
+        if (picked.type === 'safe') {
+          score += 10;
+          streak += 1;
+          updateHud();
+          showMessage(
+            'success',
+            'Destino: ' + picked.title,
+            'El fósforo cayó en una zona segura.',
+            1800
+          );
+        }
 
-    document.getElementById('zoneFence').addEventListener('click', function () {
-      applyResult('danger-low', 1, this);
-    });
+        if (picked.type === 'danger-high') {
+          score -= 30;
+          updateHud();
+          showMessage(
+            'danger',
+            'Destino: hojas secas',
+            'Cayó en una zona muy peligrosa. Reaccioná antes de que el fuego crezca.',
+            2500
+          );
+        }
+
+        if (picked.type === 'danger-mid') {
+          score -= 20;
+          updateHud();
+          showMessage(
+            'danger',
+            'Destino: leña',
+            'Cayó en leña. Tocá el fuego para apagarlo.',
+            2400
+          );
+        }
+
+        if (picked.type === 'danger-low') {
+          score -= 10;
+          updateHud();
+          showMessage(
+            'danger',
+            'Destino: fence',
+            'Cayó en el fence. Si te demorás, el fuego crece.',
+            2400
+          );
+        }
+      });
+    }
+
+    updateHud();
   </script>
 </body>
 </html>

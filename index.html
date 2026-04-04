@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="es">
+<!DOCTYPE html>
+<html lang="es">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -8,188 +9,140 @@
       margin: 0;
       padding: 0;
       box-sizing: border-box;
-    }html, body {
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  font-family: Arial, Helvetica, sans-serif;
-  background: #000;
-}
+    }
 
-.screen {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-}
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #000;
+    }
 
-.hidden {
-  display: none;
-}
+    body {
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+      user-select: none;
+    }
 
-/* SPLASH */
-#splash {
-  background-image: url('splash.png');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-}
+    button {
+      font: inherit;
+      -webkit-tap-highlight-color: transparent;
+    }
 
-/* Hotspot invisible sobre la palabra JUGAR */
-#playHotspot {
-  position: absolute;
-  left: 50%;
-  bottom: 7.2%;
-  transform: translateX(-50%);
-  width: 250px;
-  height: 92px;
-  background: transparent;
-  border: none;
-  outline: none;
-  cursor: pointer;
-  z-index: 20;
-}
+    .screen {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
 
-/* GAME */
-#game {
-  background-image: url('game.png');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  display: none;
-}
+    /* =========================
+       SPLASH
+    ========================= */
+    #splash {
+      background-image: url('splash.png');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      z-index: 20;
+    }
 
-.hud {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  gap: 10px;
-  padding: 12px 10px;
-  background: rgba(0, 0, 0, 0.38);
-  backdrop-filter: blur(4px);
-  z-index: 30;
-}
+    /* Hotspot invisible sobre JUGAR */
+    #playHotspot {
+      position: absolute;
+      left: 50%;
+      bottom: 4.6%;
+      transform: translateX(-50%);
+      width: 280px;
+      height: 102px;
+      border: none;
+      outline: none;
+      background: transparent;
+      border-radius: 999px;
+      cursor: pointer;
+      z-index: 50;
+      box-shadow: 0 0 26px rgba(255, 70, 0, 0.08);
+    }
 
-.hud-item {
-  min-width: 90px;
-  text-align: center;
-  color: #fff5df;
-  background: rgba(0, 0, 0, 0.28);
-  border: 1px solid rgba(255,255,255,0.12);
-  border-radius: 14px;
-  padding: 10px 12px;
-  box-shadow: 0 6px 18px rgba(0,0,0,0.18);
-}
+    #playHotspot:focus,
+    #playHotspot:active,
+    #playHotspot:focus-visible {
+      outline: none;
+      border: none;
+      box-shadow: 0 0 26px rgba(255, 70, 0, 0.08);
+    }
 
-.hud-label {
-  display: block;
-  font-size: 12px;
-  font-weight: 700;
-  opacity: 0.85;
-  margin-bottom: 4px;
-  letter-spacing: 0.4px;
-}
+    /* Opcional para calibrar la zona exacta */
+    .debug-hotspot {
+      display: none;
+      position: absolute;
+      left: 50%;
+      bottom: 4.6%;
+      transform: translateX(-50%);
+      width: 280px;
+      height: 102px;
+      border-radius: 999px;
+      border: 2px dashed rgba(255,255,255,0.55);
+      background: rgba(255, 40, 0, 0.12);
+      pointer-events: none;
+      z-index: 40;
+    }
 
-.hud-value {
-  display: block;
-  font-size: 22px;
-  font-weight: 800;
-  line-height: 1;
-}
+    /* =========================
+       GAME
+    ========================= */
+    #game {
+      display: none;
+      background-image: url('game.png');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      z-index: 10;
+    }
 
-/* Solo para prueba visual opcional. Dejalo en none para producción */
-.debug-hotspot {
-  display: none;
-  position: absolute;
-  left: 50%;
-  bottom: 7.2%;
-  transform: translateX(-50%);
-  width: 250px;
-  height: 92px;
-  border-radius: 999px;
-  border: 2px dashed rgba(255,255,255,0.55);
-  background: rgba(255,0,0,0.14);
-  z-index: 10;
-  pointer-events: none;
-}
+    .hud {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 10px;
+      background: rgba(0, 0, 0, 0.36);
+      backdrop-filter: blur(4px);
+      z-index: 30;
+    }
 
-@media (max-width: 768px) {
-  #playHotspot {
-    width: 230px;
-    height: 86px;
-    bottom: 6.8%;
-  }
+    .hud-item {
+      min-width: 88px;
+      text-align: center;
+      color: #fff5df;
+      background: rgba(0, 0, 0, 0.26);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 14px;
+      padding: 10px 12px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.18);
+    }
 
-  .debug-hotspot {
-    width: 230px;
-    height: 86px;
-    bottom: 6.8%;
-  }
+    .hud-label {
+      display: block;
+      font-size: 12px;
+      font-weight: 700;
+      opacity: 0.85;
+      margin-bottom: 4px;
+      letter-spacing: 0.4px;
+    }
 
-  .hud {
-    gap: 6px;
-    padding: 10px 6px;
-  }
+    .hud-value {
+      display: block;
+      font-size: 22px;
+      font-weight: 800;
+      line-height: 1;
+    }
 
-  .hud-item {
-    min-width: 72px;
-    padding: 8px 8px;
-  }
-
-  .hud-label {
-    font-size: 10px;
-  }
-
-  .hud-value {
-    font-size: 18px;
-  }
-}
-
-  </style>
-</head>
-<body>  <section id="splash" class="screen">
-    <button id="playHotspot" aria-label="Jugar"></button>
-    <div class="debug-hotspot"></div>
-  </section>  <section id="game" class="screen">
-    <div class="hud">
-      <div class="hud-item">
-        <span class="hud-label">PUNTAJE</span>
-        <span class="hud-value" id="scoreValue">0</span>
-      </div>
-      <div class="hud-item">
-        <span class="hud-label">NIVEL</span>
-        <span class="hud-value">1</span>
-      </div>
-      <div class="hud-item">
-        <span class="hud-label">TIEMPO</span>
-        <span class="hud-value">3s</span>
-      </div>
-      <div class="hud-item">
-        <span class="hud-label">RACHA</span>
-        <span class="hud-value">0</span>
-      </div>
-    </div><div id="gameScene">
-  <div id="matchInHand"></div>
-  <div id="flyingMatch"></div>
-  <div id="impactFire"></div>
-
-  <button class="zone zone-safe" id="zoneWater" style="left: 2%; top: 40%; width: 20%; height: 20%;" aria-label="Agua"></button>
-  <button class="zone zone-safe" id="zoneCement" style="left: 24%; top: 44%; width: 52%; height: 46%;" aria-label="Cemento"></button>
-  <button class="zone zone-danger-high" id="zoneLeaves" style="left: 15%; top: 42%; width: 22%; height: 12%;" aria-label="Hojas secas"></button>
-  <button class="zone zone-danger-mid" id="zoneLogs" style="left: 83%; top: 33%; width: 16%; height: 15%;" aria-label="Leña"></button>
-  <button class="zone zone-danger-low" id="zoneFence" style="left: 78%; top: 16%; width: 21%; height: 32%;" aria-label="Fence"></button>
-</div>
-
-<div id="messageBox">
-  <span id="messageTitle"></span>
-  <span id="messageText"></span>
-</div>
-
-  </section>  <style>
     #gameScene {
       position: absolute;
       inset: 0;
@@ -202,10 +155,15 @@
       background: transparent;
       cursor: pointer;
       z-index: 8;
+      border-radius: 12px;
     }
 
-    .zone:focus {
+    .zone:focus,
+    .zone:active,
+    .zone:focus-visible {
       outline: none;
+      border: none;
+      box-shadow: none;
     }
 
     /* Activar temporalmente para calibrar zonas */
@@ -215,6 +173,7 @@
       border-radius: 10px;
     }
 
+    /* Fósforo visible en la mano */
     #matchInHand {
       position: absolute;
       right: 26.4%;
@@ -225,6 +184,7 @@
       transform-origin: center 90%;
       z-index: 12;
       transition: opacity 0.12s ease;
+      pointer-events: none;
     }
 
     #matchInHand::before {
@@ -252,6 +212,7 @@
       animation: flameFlicker 0.22s infinite alternate ease-in-out;
     }
 
+    /* Fósforo volando */
     #flyingMatch {
       position: absolute;
       width: 18px;
@@ -285,6 +246,7 @@
       animation: flameFlicker 0.2s infinite alternate ease-in-out;
     }
 
+    /* Fuego al impactar */
     #impactFire {
       position: absolute;
       width: 46px;
@@ -304,6 +266,7 @@
       animation: impactPulse 0.18s infinite alternate ease-in-out;
     }
 
+    /* Mensajes */
     #messageBox {
       position: absolute;
       left: 50%;
@@ -371,17 +334,111 @@
       from { transform: scale(0.95); }
       to { transform: scale(1.08); }
     }
-      to { transform: scale(1.08); }
+
+    @media (max-width: 768px) {
+      #playHotspot {
+        width: 260px;
+        height: 96px;
+        bottom: 4.2%;
+      }
+
+      .debug-hotspot {
+        width: 260px;
+        height: 96px;
+        bottom: 4.2%;
+      }
+
+      .hud {
+        gap: 6px;
+        padding: 10px 6px;
+      }
+
+      .hud-item {
+        min-width: 72px;
+        padding: 8px 8px;
+      }
+
+      .hud-label {
+        font-size: 10px;
+      }
+
+      .hud-value {
+        font-size: 18px;
+      }
+
+      #messageBox {
+        bottom: 16px;
+        min-width: min(90vw, 360px);
+        padding: 12px 14px;
+      }
+
+      #messageTitle {
+        font-size: 14px;
+      }
+
+      #messageText {
+        font-size: 13px;
+      }
     }
-  </style>  <script>
+  </style>
+</head>
+<body>
+
+  <section id="splash" class="screen">
+    <button id="playHotspot" aria-label="Jugar"></button>
+    <div class="debug-hotspot"></div>
+  </section>
+
+  <section id="game" class="screen">
+    <div class="hud">
+      <div class="hud-item">
+        <span class="hud-label">PUNTAJE</span>
+        <span class="hud-value" id="scoreValue">0</span>
+      </div>
+      <div class="hud-item">
+        <span class="hud-label">NIVEL</span>
+        <span class="hud-value">1</span>
+      </div>
+      <div class="hud-item">
+        <span class="hud-label">TIEMPO</span>
+        <span class="hud-value">3s</span>
+      </div>
+      <div class="hud-item">
+        <span class="hud-label">RACHA</span>
+        <span class="hud-value">0</span>
+      </div>
+    </div>
+
+    <div id="gameScene">
+      <div id="matchInHand"></div>
+      <div id="flyingMatch"></div>
+      <div id="impactFire"></div>
+
+      <!-- Zonas -->
+      <button class="zone" id="zoneWater" style="left: 2%; top: 40%; width: 20%; height: 20%;" aria-label="Agua"></button>
+      <button class="zone" id="zoneCement" style="left: 24%; top: 44%; width: 52%; height: 46%;" aria-label="Cemento"></button>
+      <button class="zone" id="zoneLeaves" style="left: 15%; top: 42%; width: 22%; height: 12%;" aria-label="Hojas secas"></button>
+      <button class="zone" id="zoneLogs" style="left: 83%; top: 33%; width: 16%; height: 15%;" aria-label="Leña"></button>
+      <button class="zone" id="zoneFence" style="left: 78%; top: 16%; width: 21%; height: 32%;" aria-label="Fence"></button>
+    </div>
+
+    <div id="messageBox">
+      <span id="messageTitle"></span>
+      <span id="messageText"></span>
+    </div>
+  </section>
+
+  <script>
     const splash = document.getElementById('splash');
     const game = document.getElementById('game');
     const playHotspot = document.getElementById('playHotspot');
+
     const scoreValue = document.getElementById('scoreValue');
     const matchInHand = document.getElementById('matchInHand');
     const flyingMatch = document.getElementById('flyingMatch');
     const impactFire = document.getElementById('impactFire');
     const gameScene = document.getElementById('gameScene');
+
     const messageBox = document.getElementById('messageBox');
     const messageTitle = document.getElementById('messageTitle');
     const messageText = document.getElementById('messageText');
@@ -390,7 +447,6 @@
     let animating = false;
     let fireTimeout = null;
     let fireActive = false;
-    let activeFireTarget = null;
     let activeDangerLevel = 0;
     let messageTimer = null;
 
@@ -408,19 +464,6 @@
       };
     }
 
-    function clearFireState() {
-      fireActive = false;
-      activeFireTarget = null;
-      activeDangerLevel = 0;
-      impactFire.style.opacity = '0';
-      impactFire.onclick = null;
-      impactFire.style.pointerEvents = 'none';
-      if (fireTimeout) {
-        clearTimeout(fireTimeout);
-        fireTimeout = null;
-      }
-    }
-
     function showMessage(kind, title, text, duration = 1800) {
       if (messageTimer) {
         clearTimeout(messageTimer);
@@ -428,7 +471,6 @@
       }
 
       messageBox.className = '';
-      messageBox.id = 'messageBox';
       messageBox.classList.add(kind, 'show');
       messageTitle.textContent = title;
       messageText.textContent = text;
@@ -437,29 +479,29 @@
         messageBox.classList.remove('show', 'success', 'warning', 'danger');
       }, duration);
     }
+
+    function clearFireState() {
+      fireActive = false;
+      activeDangerLevel = 0;
+      impactFire.style.opacity = '0';
+      impactFire.style.pointerEvents = 'none';
+      impactFire.onclick = null;
+
+      if (fireTimeout) {
+        clearTimeout(fireTimeout);
+        fireTimeout = null;
+      }
     }
 
     function failByFire() {
       clearFireState();
-      showMessage('danger', 'Perdiste la partida', 'El fuego no fue apagado a tiempo. Reiniciá para volver a intentarlo.', 2600);
-      score = Math.max(0, score);
+      showMessage(
+        'danger',
+        'Perdiste la partida',
+        'El fuego no fue apagado a tiempo. Reiniciá la página para volver a intentarlo.',
+        2600
+      );
       scoreValue.textContent = score;
-    }
-
-    function showExtinguishChance(targetEl, dangerLevel) {
-      const end = zoneCenter(targetEl);
-      impactFire.style.left = `${end.x - 23}px`;
-      impactFire.style.top = `${end.y - 36}px`;
-      impactFire.style.opacity = '1';
-      impactFire.style.pointerEvents = 'auto';
-      fireActive = true;
-      activeFireTarget = targetEl;
-      activeDangerLevel = dangerLevel;
-
-      impactFire.onclick = extinguishFire;
-
-      const wait = dangerLevel === 3 ? 1200 : dangerLevel === 2 ? 1500 : 1800;
-      fireTimeout = setTimeout(failByFire, wait);
     }
 
     function extinguishFire() {
@@ -475,21 +517,34 @@
       if (activeDangerLevel === 1) score -= 4;
 
       scoreValue.textContent = score;
+
       impactFire.style.opacity = '0';
       impactFire.style.pointerEvents = 'none';
-      showMessage('warning', 'Reaccionaste a tiempo', 'Apagaste el fuego y seguís jugando, pero perdiste algunos puntos.', 2000);
+
+      showMessage(
+        'warning',
+        'Reaccionaste a tiempo',
+        'Apagaste el fuego y seguís jugando, pero perdiste algunos puntos.',
+        2000
+      );
+
       clearFireState();
     }
 
-      if (activeDangerLevel === 3) score -= 8;
-      if (activeDangerLevel === 2) score -= 6;
-      if (activeDangerLevel === 1) score -= 4;
+    function showExtinguishChance(targetEl, dangerLevel) {
+      const end = zoneCenter(targetEl);
 
-      scoreValue.textContent = score;
-      impactFire.style.opacity = '0';
-      impactFire.style.pointerEvents = 'none';
-      alert('Bien: reaccionaste a tiempo y apagaste el fuego.');
-      clearFireState();
+      impactFire.style.left = `${end.x - 23}px`;
+      impactFire.style.top = `${end.y - 36}px`;
+      impactFire.style.opacity = '1';
+      impactFire.style.pointerEvents = 'auto';
+
+      fireActive = true;
+      activeDangerLevel = dangerLevel;
+      impactFire.onclick = extinguishFire;
+
+      const wait = dangerLevel === 3 ? 1200 : dangerLevel === 2 ? 1500 : 1800;
+      fireTimeout = setTimeout(failByFire, wait);
     }
 
     function animateMatchTo(targetEl, dangerLevel = 0) {
@@ -512,6 +567,7 @@
         const t = Math.min(1, (now - startTime) / duration);
         const eased = 1 - Math.pow(1 - t, 3);
         const arc = Math.sin(t * Math.PI) * 55;
+
         const x = startX + (end.x - startX) * eased;
         const y = startY + (end.y - startY) * eased - arc;
         const angle = 26 - (34 * eased);
@@ -551,22 +607,42 @@
 
       if (type === 'safe') {
         score += 10;
-        showMessage('success', 'Buena decisión', 'Elegiste una zona segura para tirar el fósforo.', 1600);
+        showMessage(
+          'success',
+          'Buena decisión',
+          'Elegiste una zona segura para tirar el fósforo.',
+          1600
+        );
       }
 
       if (type === 'danger-high') {
         score -= 30;
-        showMessage('danger', 'Muy peligroso', 'Las hojas secas prenden rapidísimo. Tocá el fuego para apagarlo.', 2000);
+        showMessage(
+          'danger',
+          'Muy peligroso',
+          'Las hojas secas prenden rapidísimo. Tocá el fuego para apagarlo.',
+          2000
+        );
       }
 
       if (type === 'danger-mid') {
         score -= 20;
-        showMessage('danger', 'Cuidado', 'La leña también puede prender. Tocá el fuego para apagarlo.', 2000);
+        showMessage(
+          'danger',
+          'Cuidado',
+          'La leña también puede prender. Tocá el fuego para apagarlo.',
+          2000
+        );
       }
 
       if (type === 'danger-low') {
         score -= 10;
-        showMessage('danger', 'Atención', 'El fence es menos peligroso, pero igual puede prender.', 2000);
+        showMessage(
+          'danger',
+          'Atención',
+          'El fence es menos peligroso, pero igual puede prender.',
+          2000
+        );
       }
 
       scoreValue.textContent = score;
@@ -591,5 +667,6 @@
     document.getElementById('zoneFence').addEventListener('click', function () {
       applyResult('danger-low', 1, this);
     });
-  </script></body>
+  </script>
+</body>
 </html>

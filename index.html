@@ -26,7 +26,8 @@
     }
 
     button,
-    audio {
+    audio,
+    img {
       -webkit-tap-highlight-color: transparent;
     }
 
@@ -233,6 +234,7 @@
       animation: flameFlicker 0.2s infinite alternate ease-in-out;
     }
 
+    /* Se conserva, pero ya no se usa visualmente */
     #impactFire {
       position: absolute;
       width: 52px;
@@ -262,61 +264,22 @@
     #impactFire.grow-2 { transform: scale(1.18); }
     #impactFire.grow-3 { transform: scale(1.78); }
 
-    #messageBox {
+    /* Nueva advertencia visual */
+    #fireWarning {
       position: absolute;
-      transform: translate(-50%, -50%) scale(0.96);
-      min-width: min(78vw, 420px);
-      max-width: min(84vw, 520px);
-      padding: 16px 20px;
-      border-radius: 22px;
-      border: 2px solid rgba(255,255,255,0.18);
-      box-shadow: 0 18px 40px rgba(0,0,0,0.28);
-      color: #fff8e8;
-      z-index: 40;
+      width: 86px;
+      height: auto;
+      display: none;
       opacity: 0;
       pointer-events: none;
-      transition: opacity 0.18s ease, transform 0.18s ease;
-      text-align: center;
-      backdrop-filter: blur(5px);
+      z-index: 41;
+      transform: translate(-50%, -50%);
+      filter: drop-shadow(0 12px 24px rgba(0,0,0,0.35));
     }
 
-    #messageBox.show {
-      opacity: 1;
-      transform: translate(-50%, -50%) scale(1);
-    }
-
-    #messageTitle {
-      display: block;
-      font-size: 18px;
-      font-weight: 900;
-      letter-spacing: 0.4px;
-      margin-bottom: 6px;
-      text-transform: uppercase;
-    }
-
-    #messageText {
-      display: block;
-      font-size: 15px;
-      line-height: 1.38;
-      opacity: 0.98;
-    }
-
-    #messageBox.success {
-      background: rgba(20, 89, 36, 0.90);
-      border-color: rgba(163, 255, 163, 0.45);
-      box-shadow: 0 18px 40px rgba(17, 76, 34, 0.35);
-    }
-
-    #messageBox.warning {
-      background: rgba(144, 78, 8, 0.92);
-      border-color: rgba(255, 221, 128, 0.48);
-      box-shadow: 0 18px 40px rgba(120, 69, 18, 0.34);
-    }
-
-    #messageBox.danger {
-      background: rgba(150, 28, 28, 0.92);
-      border-color: rgba(255, 166, 166, 0.45);
-      box-shadow: 0 18px 40px rgba(117, 28, 28, 0.34);
+    /* Se deja pero sin uso visual */
+    #messageBox {
+      display: none;
     }
 
     #gameOverOverlay {
@@ -395,11 +358,6 @@
         transform: rotate(24deg);
         transform-origin: center 88%;
       }
-
-      #messageBox {
-        left: 50%;
-        top: 56%;
-      }
     }
 
     /* ==========================================
@@ -463,23 +421,12 @@
         transform-origin: center 90%;
       }
 
-      #messageBox {
-        left: 50%;
-        top: 25%;
-        min-width: min(82vw, 340px);
-        padding: 14px 16px;
-      }
-
-      #messageTitle {
-        font-size: 17px;
-      }
-
-      #messageText {
-        font-size: 14px;
-      }
-
       #gameOverImage {
         width: min(82vw, 440px);
+      }
+
+      #fireWarning {
+        width: 76px;
       }
     }
   </style>
@@ -526,11 +473,8 @@
 
       <button id="throwHotspot" aria-label="Lanzar fósforo"></button>
       <div class="debug-throw"></div>
-    </div>
 
-    <div id="messageBox">
-      <span id="messageTitle"></span>
-      <span id="messageText"></span>
+      <img id="fireWarning" src="fire_warning.png" alt="Advertencia de fuego" />
     </div>
 
     <div id="gameOverOverlay">
@@ -555,11 +499,9 @@
     const matchInHand = document.getElementById('matchInHand');
     const flyingMatch = document.getElementById('flyingMatch');
     const impactFire = document.getElementById('impactFire');
+    const fireWarning = document.getElementById('fireWarning');
     const gameScene = document.getElementById('gameScene');
 
-    const messageBox = document.getElementById('messageBox');
-    const messageTitle = document.getElementById('messageTitle');
-    const messageText = document.getElementById('messageText');
     const gameOverOverlay = document.getElementById('gameOverOverlay');
 
     let score = 0;
@@ -574,15 +516,21 @@
     let fireGrowthTimers = [];
     let fireActive = false;
     let activeDangerLevel = 0;
-    let messageTimer = null;
+    let warningHideTimeout = null;
 
     /* ==========================================
        AJUSTES JS
-       TOCA SOLO ESTOS TRES PARA EL VUELO
+       NO TOCADOS
     ========================================== */
     const THROW_START_X = 0.89;
     const THROW_START_Y = 0.73;
     const THROW_ARC = 62;
+
+    /* ==========================================
+       AJUSTE ADVERTENCIA VISUAL
+    ========================================== */
+    const FIRE_WARNING_DURATION = 1100;
+    const FIRE_REACT_TIME = 1800;
 
     /* ==========================================
        PROBABILIDADES
@@ -616,16 +564,8 @@
       };
     }
 
-    function showMessage(kind, title, text, duration = 1800) {
-      if (messageTimer) clearTimeout(messageTimer);
-      messageBox.className = '';
-      messageBox.classList.add(kind, 'show');
-      messageTitle.textContent = title;
-      messageText.textContent = text;
-
-      messageTimer = setTimeout(() => {
-        messageBox.classList.remove('show', 'success', 'warning', 'danger');
-      }, duration);
+    function showMessage() {
+      /* Carteles desactivados para versión niños */
     }
 
     function startSiren() {
@@ -644,8 +584,30 @@
       fireGrowthTimers = [];
       if (lossVisualTimeout) clearTimeout(lossVisualTimeout);
       if (sirenStopTimeout) clearTimeout(sirenStopTimeout);
+      if (warningHideTimeout) clearTimeout(warningHideTimeout);
       lossVisualTimeout = null;
       sirenStopTimeout = null;
+      warningHideTimeout = null;
+    }
+
+    function hideFireWarning() {
+      fireWarning.style.display = 'none';
+      fireWarning.style.opacity = '0';
+      fireWarning.style.pointerEvents = 'none';
+      fireWarning.onclick = null;
+    }
+
+    function showFireWarning(x, y) {
+      fireWarning.style.left = `${x}px`;
+      fireWarning.style.top = `${y}px`;
+      fireWarning.style.display = 'block';
+      fireWarning.style.opacity = '1';
+      fireWarning.style.pointerEvents = 'auto';
+      fireWarning.onclick = extinguishFire;
+
+      warningHideTimeout = setTimeout(() => {
+        hideFireWarning();
+      }, FIRE_WARNING_DURATION);
     }
 
     function resetFireVisual() {
@@ -653,6 +615,7 @@
       impactFire.style.opacity = '0';
       impactFire.style.pointerEvents = 'none';
       impactFire.onclick = null;
+      hideFireWarning();
     }
 
     function resetGameOver() {
@@ -692,21 +655,16 @@
         fireTimeout = null;
       }
 
-      impactFire.classList.remove('grow-1', 'grow-2');
-      impactFire.classList.add('grow-3');
-      impactFire.style.opacity = '1';
-      impactFire.style.pointerEvents = 'none';
-
-      messageBox.classList.remove('show');
+      hideFireWarning();
       gameOverOverlay.classList.add('show');
 
       sirenStopTimeout = setTimeout(() => {
         stopSiren();
-      }, 8000);
+      }, 2200);
 
       lossVisualTimeout = setTimeout(() => {
         resetFireVisual();
-      }, 8000);
+      }, 2200);
 
       streak = 0;
       updateHud();
@@ -722,6 +680,7 @@
 
       clearGrowthTimers();
       stopSiren();
+      hideFireWarning();
 
       if (activeDangerLevel === 3) score -= 8;
       if (activeDangerLevel === 2) score -= 6;
@@ -729,13 +688,6 @@
 
       streak = 0;
       updateHud();
-
-      showMessage(
-        'warning',
-        'Reaccionaste a tiempo',
-        'Apagaste el fuego antes de que creciera más y antes de que llegaran los bomberos.',
-        2400
-      );
 
       fireActive = false;
       activeDangerLevel = 0;
@@ -745,33 +697,13 @@
     function showExtinguishChance(targetEl, dangerLevel) {
       const end = zoneCenter(targetEl);
 
-      impactFire.style.left = `${end.x - 26}px`;
-      impactFire.style.top = `${end.y - 44}px`;
-      impactFire.style.opacity = '1';
-      impactFire.style.pointerEvents = 'auto';
-      impactFire.classList.remove('grow-2', 'grow-3');
-      impactFire.classList.add('grow-1');
-
       fireActive = true;
       activeDangerLevel = dangerLevel;
-      impactFire.onclick = extinguishFire;
 
+      showFireWarning(end.x, end.y);
       startSiren();
 
-      const reactTime = 7600;
-
-      fireGrowthTimers.push(setTimeout(() => {
-        if (!fireActive) return;
-        impactFire.classList.remove('grow-1');
-        impactFire.classList.add('grow-2');
-      }, 2200));
-
-      fireGrowthTimers.push(setTimeout(() => {
-        if (!fireActive) return;
-        impactFire.classList.remove('grow-2');
-        impactFire.classList.add('grow-3');
-      }, 5000));
-
+      const reactTime = FIRE_REACT_TIME;
       fireTimeout = setTimeout(failByFire, reactTime);
     }
 
@@ -858,45 +790,21 @@
           score += 10;
           streak += 1;
           updateHud();
-          showMessage(
-            'success',
-            'Destino: ' + picked.title,
-            'El fósforo cayó en una zona segura.',
-            1800
-          );
         }
 
         if (picked.type === 'danger-high') {
           score -= 30;
           updateHud();
-          showMessage(
-            'danger',
-            'Destino: hojas secas',
-            'Cayó en una zona muy peligrosa. Reaccioná antes de que el fuego crezca.',
-            2500
-          );
         }
 
         if (picked.type === 'danger-mid') {
           score -= 20;
           updateHud();
-          showMessage(
-            'danger',
-            'Destino: leña',
-            'Cayó en leña. Tocá el fuego para apagarlo.',
-            2400
-          );
         }
 
         if (picked.type === 'danger-low') {
           score -= 10;
           updateHud();
-          showMessage(
-            'danger',
-            'Destino: fence',
-            'Cayó en el fence. Si te demorás, el fuego crece.',
-            2400
-          );
         }
       });
     }

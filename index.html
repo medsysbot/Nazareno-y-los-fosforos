@@ -176,6 +176,7 @@
       pointer-events: none;
     }
 
+    /* SE CONSERVA TU AJUSTE ACTUAL */
     #matchInHand::before {
       content: "";
       position: absolute;
@@ -188,6 +189,7 @@
       box-shadow: 0 0 3px rgba(0,0,0,0.2);
     }
 
+    /* SE CONSERVA TU AJUSTE ACTUAL */
     #matchInHand::after {
       content: "";
       position: absolute;
@@ -234,7 +236,7 @@
       animation: flameFlicker 0.2s infinite alternate ease-in-out;
     }
 
-    /* Se conserva, pero ya no se usa visualmente */
+    /* FUEGO REAL DEL JUEGO: SE MANTIENE */
     #impactFire {
       position: absolute;
       width: 52px;
@@ -264,7 +266,7 @@
     #impactFire.grow-2 { transform: scale(1.18); }
     #impactFire.grow-3 { transform: scale(1.78); }
 
-    /* Nueva advertencia visual */
+    /* NUEVA SEÑAL DE ADVERTENCIA BREVE */
     #fireWarning {
       position: absolute;
       width: 86px;
@@ -277,7 +279,7 @@
       filter: drop-shadow(0 12px 24px rgba(0,0,0,0.35));
     }
 
-    /* Se deja pero sin uso visual */
+    /* CAJA DE MENSAJES DESACTIVADA */
     #messageBox {
       display: none;
     }
@@ -318,6 +320,7 @@
 
     /* ==========================================
        AJUSTES PC / LAPTOP
+       SE CONSERVAN
     ========================================== */
     @media (min-width: 769px) {
       #playHotspot {
@@ -362,6 +365,7 @@
 
     /* ==========================================
        AJUSTES MÓVIL / TABLET
+       SE CONSERVAN
     ========================================== */
     @media (max-width: 768px) {
       #playHotspot {
@@ -520,17 +524,21 @@
 
     /* ==========================================
        AJUSTES JS
-       NO TOCADOS
+       SE CONSERVAN
     ========================================== */
     const THROW_START_X = 0.89;
     const THROW_START_Y = 0.73;
     const THROW_ARC = 62;
 
     /* ==========================================
-       AJUSTE ADVERTENCIA VISUAL
+       TIEMPOS
+       SE MANTIENE LÓGICA LARGA: 7.5 a 8 s
     ========================================== */
     const FIRE_WARNING_DURATION = 1100;
-    const FIRE_REACT_TIME = 1800;
+    const FIRE_REACT_TIME = 7600;
+    const FIRE_GROWTH_1 = 2200;
+    const FIRE_GROWTH_2 = 5000;
+    const FIRE_END_VISUAL = 8000;
 
     /* ==========================================
        PROBABILIDADES
@@ -562,10 +570,6 @@
         x: rect.left - parent.left + rect.width / 2,
         y: rect.top - parent.top + rect.height / 2
       };
-    }
-
-    function showMessage() {
-      /* Carteles desactivados para versión niños */
     }
 
     function startSiren() {
@@ -602,8 +606,7 @@
       fireWarning.style.top = `${y}px`;
       fireWarning.style.display = 'block';
       fireWarning.style.opacity = '1';
-      fireWarning.style.pointerEvents = 'auto';
-      fireWarning.onclick = extinguishFire;
+      fireWarning.style.pointerEvents = 'none';
 
       warningHideTimeout = setTimeout(() => {
         hideFireWarning();
@@ -656,15 +659,21 @@
       }
 
       hideFireWarning();
+
+      impactFire.classList.remove('grow-1', 'grow-2');
+      impactFire.classList.add('grow-3');
+      impactFire.style.opacity = '1';
+      impactFire.style.pointerEvents = 'none';
+
       gameOverOverlay.classList.add('show');
 
       sirenStopTimeout = setTimeout(() => {
         stopSiren();
-      }, 2200);
+      }, FIRE_END_VISUAL);
 
       lossVisualTimeout = setTimeout(() => {
         resetFireVisual();
-      }, 2200);
+      }, FIRE_END_VISUAL);
 
       streak = 0;
       updateHud();
@@ -697,14 +706,33 @@
     function showExtinguishChance(targetEl, dangerLevel) {
       const end = zoneCenter(targetEl);
 
+      impactFire.style.left = `${end.x - 26}px`;
+      impactFire.style.top = `${end.y - 44}px`;
+      impactFire.style.opacity = '1';
+      impactFire.style.pointerEvents = 'auto';
+      impactFire.classList.remove('grow-2', 'grow-3');
+      impactFire.classList.add('grow-1');
+      impactFire.onclick = extinguishFire;
+
       fireActive = true;
       activeDangerLevel = dangerLevel;
 
       showFireWarning(end.x, end.y);
       startSiren();
 
-      const reactTime = FIRE_REACT_TIME;
-      fireTimeout = setTimeout(failByFire, reactTime);
+      fireGrowthTimers.push(setTimeout(() => {
+        if (!fireActive) return;
+        impactFire.classList.remove('grow-1');
+        impactFire.classList.add('grow-2');
+      }, FIRE_GROWTH_1));
+
+      fireGrowthTimers.push(setTimeout(() => {
+        if (!fireActive) return;
+        impactFire.classList.remove('grow-2');
+        impactFire.classList.add('grow-3');
+      }, FIRE_GROWTH_2));
+
+      fireTimeout = setTimeout(failByFire, FIRE_REACT_TIME);
     }
 
     function animateMatchTo(targetEl, dangerLevel = 0, afterLanding) {
